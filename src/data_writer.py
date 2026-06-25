@@ -4,14 +4,60 @@ from collections import deque
 from getRedisColor import getColor
 import redis
 
+DATA_FILE = "data.csv"
 
-# Writes the time, phone number, color, and response to a specified CSV file for data storage
-def writeFile(file,number,color,response):
+
+def writeFile(file, number, color, response):
     with open(file, mode='a') as data:
         now = datetime.datetime.now()
         data_writer = csv.writer(data, quoting=csv.QUOTE_ALL)
-        data_writer.writerow([now, number,color,response])
-        data.close()
+        data_writer.writerow([now, number, color, response])
+
+
+def _format_ago(timestamp):
+    if isinstance(timestamp, str):
+        timestamp = timestamp.strip('"')
+        try:
+            timestamp = datetime.datetime.fromisoformat(timestamp)
+        except ValueError:
+            timestamp = datetime.datetime.strptime(timestamp[:19], "%Y-%m-%d %H:%M:%S")
+    seconds = (datetime.datetime.now() - timestamp).total_seconds()
+    if seconds < 60:
+        return "just now"
+    if seconds < 3600:
+        return "{}m ago".format(int(seconds // 60))
+    if seconds < 86400:
+        return "{}h ago".format(int(seconds // 3600))
+    return "{}d ago".format(int(seconds // 86400))
+
+
+def _display_color_name(color_key):
+    return color_key.replace("-", " ").title()
+
+
+def recent_picks(file=DATA_FILE, limit=8):
+    picks = []
+    try:
+        with open(file, 'r') as data:
+            rows = list(csv.reader(data))
+    except FileNotFoundError:
+        return picks
+
+    for row in reversed(rows[-limit:]):
+        if len(row) < 3:
+            continue
+        timestamp, _, color_key = row[0].strip('"'), row[1], row[2]
+        pick = {
+            "color": _display_color_name(color_key),
+            "key": color_key,
+            "ago": _format_ago(timestamp),
+        }
+        rgb = getColor(color_key)
+        if rgb:
+            parts = [int(v) for v in rgb.split(",")]
+            pick["rgb"] = parts
+        picks.append(pick)
+    return picks
 
 #Returns a list of the most recent colors the Hue Light changed to up to a total of 5 colors
 def mostRecentColors(file):
@@ -60,10 +106,17 @@ def color_percent(color):
     r = redis.Redis(host='localhost', port=6379, db=0)
     color = color.lower()
 
-    color_total = (float(r.hget('color_totals', color).decode('utf-8')))
-    total = float(r.get('total').decode('utf-8'))
+    color_raw = r.hget('color_totals', color)
+    total_raw = r.get('total')
+    if color_raw is None or total_raw is None:
+        return 0.0
 
-    percent = (color_total/total) * 100
+    color_total = float(color_raw.decode('utf-8'))
+    total = float(total_raw.decode('utf-8'))
+    if total == 0:
+        return 0.0
+
+    percent = (color_total / total) * 100
 
     return percent
 
