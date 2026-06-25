@@ -34,3 +34,26 @@ class HueController:
         logging.info("Server was successfully able to connect to the bridge")
         self.light = self.bridge.lights[light_number]
 
+    def set_rgb(self, rgb_values, transitiontime=4):
+        if type(rgb_values) != str:
+            rgb_values = rgb_values.decode("utf-8")
+        r, g, b = (int(v) for v in rgb_values.split(','))
+        converter = Converter()
+        saturation_val = 0 if r == 255 and g == 255 and b == 255 else 255
+        x, y = converter.rgb_to_xy(r, g, b)
+
+        try:
+            self.light.on = True
+            self.light.transitiontime = transitiontime
+            self.light.xy = (x, y)
+            self.light.saturation = saturation_val
+        except (PhueException, AttributeError):
+            logging.info("Hue connection lost, reconnecting")
+            self.light = None
+            self.bridge = None
+            self.connect()
+            self.light.on = True
+            self.light.transitiontime = transitiontime
+            self.light.xy = (x, y)
+            self.light.saturation = saturation_val
+

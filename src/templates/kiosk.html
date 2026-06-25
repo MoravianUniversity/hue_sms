@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moravian Color Light</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: #0f0f1a;
+      color: #fff;
+    }
+
+    #app {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #color-layer {
+      position: absolute;
+      inset: 0;
+      background: #0f0f1a;
+      z-index: 0;
+    }
+
+    #vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 30%, transparent 0%, rgba(0, 0, 0, 0.5) 75%);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    #chrome {
+      position: relative;
+      z-index: 2;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem 1.5rem 0;
+      text-align: center;
+      min-height: 0;
+    }
+
+    .eyebrow {
+      font-size: clamp(0.85rem, 2vw, 1.1rem);
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      opacity: 0.65;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(1rem, 3vw, 2rem);
+    }
+
+    .qr-box {
+      flex-shrink: 0;
+      background: #fff;
+      padding: 6px;
+      border-radius: 10px;
+      line-height: 0;
+    }
+
+    .qr-box img {
+      width: clamp(72px, 11vw, 96px);
+      height: auto;
+      display: block;
+    }
+
+    .qr-caption {
+      font-size: 0.65rem;
+      color: #333;
+      text-align: center;
+      margin-top: 4px;
+      letter-spacing: 0.04em;
+      font-weight: 600;
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 7vw, 5rem);
+      font-weight: 800;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+    }
+
+    .phone {
+      margin-top: 0.5rem;
+      font-size: clamp(1.6rem, 4.5vw, 3rem);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .hint {
+      margin-top: 0.5rem;
+      font-size: clamp(0.85rem, 1.8vw, 1.1rem);
+      opacity: 0.6;
+      max-width: 42ch;
+      line-height: 1.45;
+    }
+
+    #lamp-glow {
+      position: relative;
+      width: clamp(64px, 10vw, 88px);
+      height: clamp(64px, 10vw, 88px);
+      border-radius: 50%;
+      margin-top: 0.75rem;
+      border: 3px solid rgba(255, 255, 255, 0.35);
+      box-shadow: 0 0 40px rgba(255, 255, 255, 0.15);
+      transition: background 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
+    }
+
+    #lamp-glow::after {
+      content: "";
+      position: absolute;
+      inset: -14px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.12);
+      pointer-events: none;
+    }
+
+    #lamp-glow.pulse {
+      animation: lamp-pulse 0.7s ease 3;
+    }
+
+    @keyframes lamp-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
+
+    .lamp-label {
+      margin-top: 0.45rem;
+      font-size: clamp(0.7rem, 1.4vw, 0.85rem);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      opacity: 0.5;
+    }
+
+    #health-banner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 20;
+      background: rgba(139, 26, 26, 0.92);
+      text-align: center;
+      padding: 0.55rem 1rem;
+      font-size: clamp(0.8rem, 1.6vw, 0.95rem);
+      letter-spacing: 0.03em;
+    }
+
+    #health-banner.hidden { display: none; }
+
+    #recent-ticker-wrap {
+      margin-top: 0.75rem;
+      width: min(92vw, 720px);
+      overflow: hidden;
+      mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+    }
+
+    .recent-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      opacity: 0.4;
+      margin-bottom: 0.35rem;
+    }
+
+    #recent-ticker {
+      display: flex;
+      gap: 1.25rem;
+      white-space: nowrap;
+      font-size: clamp(0.75rem, 1.5vw, 0.9rem);
+      opacity: 0.75;
+      animation: ticker-scroll 40s linear infinite;
+    }
+
+    @keyframes ticker-scroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    .recent-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .recent-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      flex-shrink: 0;
+    }
+
+    .recent-ago {
+      opacity: 0.55;
+      font-size: 0.9em;
+    }
+
+    #palette-panel {
+      position: relative;
+      z-index: 2;
+      flex-shrink: 0;
+      width: 100%;
+      padding: 0.75rem 0 1rem;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.45) 70%, transparent 100%);
+    }
+
+    .palette-meta {
+      text-align: center;
+      font-size: clamp(0.75rem, 1.6vw, 0.95rem);
+      opacity: 0.55;
+      margin-bottom: 0.6rem;
+      letter-spacing: 0.04em;
+    }
+
+    .palette-meta strong { color: #fff; opacity: 1; font-weight: 700; }
+
+    #palette-feature {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+      padding: 0 1rem;
+    }
+
+    #feature-swatch {
+      width: clamp(52px, 8vw, 72px);
+      height: clamp(52px, 8vw, 72px);
+      border-radius: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      box-shadow: 0 0 24px rgba(255, 255, 255, 0.15);
+      flex-shrink: 0;
+      transition: background-color 0.35s ease, transform 0.35s ease;
+    }
+
+    #feature-swatch.pop { transform: scale(1.12); }
+
+    .feature-text { text-align: left; min-width: 0; }
+
+    #feature-label {
+      font-size: clamp(0.7rem, 1.4vw, 0.85rem);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      opacity: 0.55;
+    }
+
+    #feature-name {
+      font-size: clamp(1.2rem, 3.5vw, 2rem);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 55vw;
+    }
+
+    #feature-hex {
+      font-size: clamp(0.75rem, 1.5vw, 0.9rem);
+      opacity: 0.5;
+      font-family: ui-monospace, monospace;
+    }
+
+    .palette-lanes {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+    }
+
+    .palette-lane { overflow: hidden; height: clamp(28px, 4vw, 36px); }
+
+    .palette-track {
+      display: flex;
+      width: max-content;
+      will-change: transform;
+    }
+
+    .palette-track.scroll-left { animation: scroll-left 90s linear infinite; }
+    .palette-track.scroll-right { animation: scroll-right 110s linear infinite; }
+
+    @keyframes scroll-left {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    @keyframes scroll-right {
+      from { transform: translateX(-50%); }
+      to { transform: translateX(0); }
+    }
+
+    .swatch {
+      flex-shrink: 0;
+      width: clamp(28px, 4vw, 36px);
+      height: clamp(28px, 4vw, 36px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      position: relative;
+    }
+
+    .swatch.highlight {
+      transform: scale(1.35);
+      z-index: 1;
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.55);
+      border-color: rgba(255, 255, 255, 0.8);
+    }
+
+    .stats {
+      text-align: center;
+      margin-top: 0.55rem;
+      font-size: clamp(0.75rem, 1.5vw, 0.9rem);
+      opacity: 0.45;
+    }
+
+    #spotlight {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    #spotlight.visible { opacity: 1; }
+
+    .spotlight-hook {
+      margin-bottom: 0.75rem;
+      font-size: clamp(1.1rem, 3vw, 1.8rem);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.95;
+    }
+
+    .spotlight-name {
+      font-size: clamp(3rem, 11vw, 8rem);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      color: #fff;
+      text-align: center;
+      padding: 0 1rem;
+    }
+
+    .spotlight-sub {
+      margin-top: 0.5rem;
+      font-size: clamp(1rem, 2.5vw, 1.6rem);
+      opacity: 0.9;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .spotlight-hex {
+      margin-top: 0.4rem;
+      font-size: clamp(0.9rem, 2vw, 1.2rem);
+      opacity: 0.75;
+      font-family: ui-monospace, monospace;
+    }
+  </style>
+</head>
+<body>
+  <div id="health-banner" class="hidden"></div>
+  <div id="app">
+    <div id="color-layer"></div>
+    <div id="vignette"></div>
+
+    <div id="chrome">
+      <div class="eyebrow">Moravian CS Lab</div>
+
+      <div class="hero-row">
+        <div class="qr-box">
+          <img src="/api/qr" alt="Scan to text">
+          <div class="qr-caption">SCAN TO TEXT</div>
+        </div>
+        <div>
+          <h1>Text a Color</h1>
+          <div class="phone" id="phone">{{ phone }}</div>
+        </div>
+      </div>
+
+      <p class="hint">
+        <strong id="palette-count-hint">—</strong> named colors
+        · text <strong>random</strong> or <strong>next</strong>
+        · any hex like <strong>#FF5733</strong>
+        · watch the light in the window
+      </p>
+
+      <div id="lamp-glow"></div>
+      <div class="lamp-label">Light in the window</div>
+
+      <div id="recent-ticker-wrap">
+        <div class="recent-label">Recent picks</div>
+        <div id="recent-ticker"></div>
+      </div>
+    </div>
+
+    <div id="palette-panel">
+      <div class="palette-meta">
+        <strong id="palette-count">—</strong> colors available
+      </div>
+
+      <div id="palette-feature">
+        <div id="feature-swatch"></div>
+        <div class="feature-text">
+          <div id="feature-label">Try texting</div>
+          <div id="feature-name">—</div>
+          <div id="feature-hex"></div>
+        </div>
+      </div>
+
+      <div class="palette-lanes">
+        <div class="palette-lane">
+          <div class="palette-track scroll-left" id="track-a"></div>
+        </div>
+        <div class="palette-lane">
+          <div class="palette-track scroll-right" id="track-b"></div>
+        </div>
+      </div>
+
+      <div class="stats"><strong id="total-count">—</strong> colors chosen so far</div>
+    </div>
+
+    <div id="spotlight">
+      <div class="spotlight-hook">The light in the window just changed!</div>
+      <div class="spotlight-name" id="spotlight-name"></div>
+      <div class="spotlight-sub" id="spotlight-sub"></div>
+      <div class="spotlight-hex" id="spotlight-hex"></div>
+    </div>
+  </div>
+
+  <script>
+    var colorLayer = document.getElementById("color-layer");
+    var phone = document.getElementById("phone");
+    var lampGlow = document.getElementById("lamp-glow");
+    var healthBanner = document.getElementById("health-banner");
+    var recentTicker = document.getElementById("recent-ticker");
+    var spotlight = document.getElementById("spotlight");
+    var spotlightName = document.getElementById("spotlight-name");
+    var spotlightSub = document.getElementById("spotlight-sub");
+    var spotlightHex = document.getElementById("spotlight-hex");
+    var totalCount = document.getElementById("total-count");
+    var paletteCount = document.getElementById("palette-count");
+    var paletteCountHint = document.getElementById("palette-count-hint");
+    var featureSwatch = document.getElementById("feature-swatch");
+    var featureName = document.getElementById("feature-name");
+    var featureHex = document.getElementById("feature-hex");
+    var trackA = document.getElementById("track-a");
+    var trackB = document.getElementById("track-b");
+
+    var palette = [];
+    var swatchByKey = {};
+    var lastLampRgb = "";
+    var lastAmbienceRgb = "";
+    var spotlightActive = false;
+    var spotlightTimer = null;
+    var featureTimer = null;
+    var featureIndex = 0;
+    var shuffleOrder = [];
+
+    function rgbCss(rgb) {
+      return "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
+    }
+
+    function mixWithDark(rgb, amount) {
+      var r = Math.round(rgb[0] * amount + 15 * (1 - amount));
+      var g = Math.round(rgb[1] * amount + 15 * (1 - amount));
+      var b = Math.round(rgb[2] * amount + 26 * (1 - amount));
+      return "rgb(" + r + "," + g + "," + b + ")";
+    }
+
+    function setLampColor(rgb) {
+      var key = rgb.join(",");
+      if (key === lastLampRgb) return;
+      lastLampRgb = key;
+      var accent = rgbCss(rgb);
+      lampGlow.style.background = accent;
+      lampGlow.style.boxShadow = "0 0 40px rgba(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ",0.65), 0 0 80px rgba(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ",0.25)";
+    }
+
+    function setLightAmbience(rgb) {
+      var key = rgb.join(",");
+      if (key === lastAmbienceRgb) return;
+      lastAmbienceRgb = key;
+      var accent = rgbCss(rgb);
+      colorLayer.style.background = mixWithDark(rgb, 0.32);
+      phone.style.color = accent;
+      totalCount.style.color = accent;
+      paletteCount.style.color = accent;
+    }
+
+    function applyLightState(state) {
+      if (!state || !state.rgb) return;
+      setLampColor(state.rgb);
+      if (!spotlightActive) {
+        setLightAmbience(state.rgb);
+      }
+    }
+
+    function pulseLamp() {
+      lampGlow.classList.remove("pulse");
+      void lampGlow.offsetWidth;
+      lampGlow.classList.add("pulse");
+    }
+
+    function renderRecent(recent) {
+      if (!recent || !recent.length) {
+        recentTicker.innerHTML = "<span class='recent-item'>Be the first to pick a color!</span>";
+        return;
+      }
+      function itemHtml(pick) {
+        var dot = pick.rgb
+          ? "<span class='recent-dot' style='background:" + rgbCss(pick.rgb) + "'></span>"
+          : "";
+        return "<span class='recent-item'>" + dot +
+          "<span>" + pick.color + "</span>" +
+          "<span class='recent-ago'>" + pick.ago + "</span></span>";
+      }
+      var html = recent.map(itemHtml).join("");
+      recentTicker.innerHTML = html + html;
+    }
+
+    function buildTrack(track, colors, offset) {
+      track.innerHTML = "";
+      colors.concat(colors).forEach(function (color) {
+        var el = document.createElement("div");
+        el.className = "swatch";
+        el.style.backgroundColor = rgbCss(color.rgb);
+        el.title = color.name;
+        el.dataset.key = color.key;
+        swatchByKey[color.key] = el;
+        track.appendChild(el);
+      });
+      track.style.animationDelay = "-" + offset + "s";
+    }
+
+    function shufflePalette() {
+      shuffleOrder = palette.slice();
+      for (var i = shuffleOrder.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = shuffleOrder[i];
+        shuffleOrder[i] = shuffleOrder[j];
+        shuffleOrder[j] = tmp;
+      }
+      featureIndex = 0;
+    }
+
+    function showFeature(color) {
+      if (!color) return;
+      featureSwatch.style.backgroundColor = rgbCss(color.rgb);
+      featureName.textContent = color.name;
+      featureHex.textContent = color.hex;
+      featureSwatch.classList.remove("pop");
+      void featureSwatch.offsetWidth;
+      featureSwatch.classList.add("pop");
+    }
+
+    function advanceFeature() {
+      if (spotlightActive || !shuffleOrder.length) return;
+      if (featureIndex >= shuffleOrder.length) shufflePalette();
+      showFeature(shuffleOrder[featureIndex]);
+      featureIndex += 1;
+    }
+
+    function startFeatureRotation() {
+      clearInterval(featureTimer);
+      featureTimer = setInterval(advanceFeature, 3200);
+    }
+
+    function hideSpotlight() {
+      spotlight.classList.remove("visible");
+      spotlight.style.background = "";
+      spotlightActive = false;
+      startFeatureRotation();
+      advanceFeature();
+    }
+
+    function showSpotlight(state) {
+      spotlightActive = true;
+      clearInterval(featureTimer);
+      lastLampRgb = "";
+      lastAmbienceRgb = "";
+      setLampColor(state.rgb);
+      setLightAmbience(state.rgb);
+      pulseLamp();
+
+      spotlightName.textContent = state.color_name;
+      spotlightSub.textContent = state.subtitle || state.color_name;
+      spotlightHex.textContent = state.hex || "";
+      spotlight.style.background = rgbCss(state.rgb);
+
+      clearTimeout(spotlightTimer);
+      spotlight.classList.add("visible");
+      spotlightTimer = setTimeout(hideSpotlight, 3500);
+    }
+
+    function applyCurrentLight(state) {
+      if (!spotlightActive) {
+        applyLightState(state);
+      }
+    }
+
+    function handleState(state) {
+      if (!state || !state.rgb) return;
+      if (typeof state.total_choices === "number") {
+        totalCount.textContent = state.total_choices.toLocaleString();
+      }
+      if (state.recent && state.mode === "spotlight") {
+        renderRecent(state.recent);
+      }
+      if (state.mode === "spotlight") {
+        showSpotlight(state);
+      } else {
+        applyCurrentLight(state);
+      }
+    }
+
+    function initPalette(data) {
+      palette = data.colors || [];
+      var count = data.count || palette.length;
+      paletteCount.textContent = count;
+      paletteCountHint.textContent = count;
+      swatchByKey = {};
+
+      var half = Math.ceil(palette.length / 2);
+      buildTrack(trackA, palette.slice(0, half), 0);
+      buildTrack(trackB, palette.slice(half).reverse(), 15);
+
+      shufflePalette();
+      advanceFeature();
+      startFeatureRotation();
+    }
+
+    function connectEvents() {
+      var source = new EventSource("/events");
+      source.onmessage = function (event) {
+        handleState(JSON.parse(event.data));
+      };
+      source.onerror = function () {
+        source.close();
+        showHealthIssue("Display connection lost — retrying…");
+        setTimeout(connectEvents, 5000);
+      };
+    }
+
+    function showHealthIssue(message) {
+      healthBanner.textContent = message;
+      healthBanner.classList.remove("hidden");
+    }
+
+    function hideHealthIssue() {
+      healthBanner.classList.add("hidden");
+    }
+
+    function checkHealth() {
+      fetch("/api/health")
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+        .then(function (result) {
+          if (result.ok) {
+            hideHealthIssue();
+            return;
+          }
+          var parts = [];
+          if (!result.data.redis) parts.push("Redis");
+          if (!result.data.sms_server) parts.push("SMS server");
+          if (!result.data.hue) parts.push("Hue light");
+          showHealthIssue("Offline: " + parts.join(", ") + " — waiting to reconnect…");
+        })
+        .catch(function () {
+          showHealthIssue("Display offline — cannot reach services");
+        });
+    }
+
+    fetch("/api/palette").then(function (r) { return r.json(); }).then(initPalette).catch(function () {});
+    fetch("/api/state").then(function (r) { return r.json(); }).then(handleState).catch(function () {});
+    fetch("/api/recent").then(function (r) { return r.json(); }).then(function (d) {
+      renderRecent(d.recent);
+    }).catch(function () {});
+
+    connectEvents();
+    checkHealth();
+    setInterval(checkHealth, 10000);
+  </script>
+</body>
+</html>
