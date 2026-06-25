@@ -5,7 +5,7 @@ flask
 twilio
 redis
 fakeredis
--e git://github.com/benknight/hue-python-rgb-converter#egg=rgbxy
+-e git+https://github.com/benknight/hue-python-rgb-converter.git#egg=rgbxy
 plotly
 dash
 dash_core_components
@@ -15,3 +15,4 @@ pandas
 Dynaconf
 thefuzz[speedup]
 Pillow
+qrcode

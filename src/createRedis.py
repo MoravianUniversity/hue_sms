@@ -24,6 +24,22 @@ def go():
             r.hset("colors", name, input_val)
             r.hset("color_totals", name, 0)
             r.incr('color_sum')
+
+    extra_path = location + '/extra_colors.csv'
+    if os.path.exists(extra_path):
+        with open(extra_path) as colors:
+            for line in colors:
+                line = line.strip()
+                if not line:
+                    continue
+                (name, red, green, blue) = line.split(',')
+                name = clean_name(name)
+                if r.hexists("colors", name):
+                    continue
+                input_val = str(red + "," + green + "," + blue)
+                r.hset("colors", name, input_val)
+                r.hset("color_totals", name, 0)
+                r.incr('color_sum')
     r.hset("color_totals", 'random', 0)
     r.set('total', 0)
 

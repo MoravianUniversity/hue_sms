@@ -3,6 +3,8 @@ import os
 
 
 def clean_name(name):
+    if not name:
+        return ""
     name = name.lower()
     name = name.strip()
     name = name.replace('\'', '')
