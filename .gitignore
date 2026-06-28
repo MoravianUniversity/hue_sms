@@ -14,3 +14,4 @@ venv
 *.csv
 settings.toml
 .DS_Store
+.pip_packages/

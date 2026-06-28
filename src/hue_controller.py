@@ -1,21 +1,19 @@
-import rgbxy
 from phue import Bridge, PhueException
 import name_converter
-from rgbxy import Converter
 from name_converter import clean_name
 from dynaconf import Dynaconf
 import logging
 from getRedisColor import getColor
+from hue_color import get_gamut, rgb_to_hue
 
 logging.basicConfig(level=logging.INFO,filename="hue_log.log",
                     format="%(asctime)s:%(levelname)s:%(message)s"	)
 
 settings = Dynaconf(settings_files=['settings.toml'])
 
-saturation_val = 0
-branch_value = 0
 IP_address = settings.light_ip
 light_number = settings.light_number
+HUE_GAMUT = get_gamut(getattr(settings, "hue_gamut", "C"))
 
 
 class HueController:
@@ -38,15 +36,14 @@ class HueController:
         if type(rgb_values) != str:
             rgb_values = rgb_values.decode("utf-8")
         r, g, b = (int(v) for v in rgb_values.split(','))
-        converter = Converter()
-        saturation_val = 0 if r == 255 and g == 255 and b == 255 else 255
-        x, y = converter.rgb_to_xy(r, g, b)
+        x, y, bri, saturation = rgb_to_hue(r, g, b, gamut=HUE_GAMUT)
 
         try:
             self.light.on = True
             self.light.transitiontime = transitiontime
+            self.light.brightness = bri
             self.light.xy = (x, y)
-            self.light.saturation = saturation_val
+            self.light.saturation = saturation
         except (PhueException, AttributeError):
             logging.info("Hue connection lost, reconnecting")
             self.light = None
@@ -54,6 +51,7 @@ class HueController:
             self.connect()
             self.light.on = True
             self.light.transitiontime = transitiontime
+            self.light.brightness = bri
             self.light.xy = (x, y)
-            self.light.saturation = saturation_val
+            self.light.saturation = saturation
 
