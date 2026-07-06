@@ -1,13 +1,23 @@
 import json
+import re
 import time
 
 import redis
+
+from hue_color import is_excluded_palette_color
 
 DISPLAY_STATE_KEY = "display:state"
 DISPLAY_CHANNEL = "display:updates"
 CYCLE_INDEX_KEY = "display:cycle_index"
 RECENT_PICKS_KEY = "display:recent_picks"
 RECENT_PICKS_LIMIT = 8
+UNSUPPORTED_NAME_PATTERN = re.compile(
+    r"\b(black|gray|grey|silver|charcoal|onyx|eerie|smoke|granite|"
+    r"brown|tan|beaver|lumber|sienna|umber|sepia|mahogany|tumbleweed|"
+    r"peach|apricot|almond|copper|bronze|beige|wood|dirt|earthworm|cedar|"
+    r"fuzzy wuzzy|desert sand|raw sienna|burnt sienna|van dyke)\b",
+    re.IGNORECASE,
+)
 
 
 def get_redis(decode_responses=True):
@@ -40,6 +50,26 @@ def build_state(color_name, rgb_values, mode="spotlight", subtitle=None):
     if subtitle:
         state["subtitle"] = subtitle
     return state
+
+
+def is_likely_unsupported_color_name(color_name):
+    return bool(UNSUPPORTED_NAME_PATTERN.search(color_name.replace("-", " ")))
+
+
+def build_unsupported_state(color_name, subtitle=None):
+    display_name = color_name.replace("-", " ").title()
+    return {
+        "color_name": display_name,
+        "color_key": color_name.lower().strip(),
+        "mode": "unsupported",
+        "subtitle": subtitle or "Can't show on the light",
+        "message": "That color can't be shown on the Hue bulb — try a brighter, more vivid color!",
+        "timestamp": time.time(),
+    }
+
+
+def publish_unsupported_color(color_name, subtitle=None):
+    publish_state(build_unsupported_state(color_name, subtitle=subtitle))
 
 
 def _format_ago(timestamp):
@@ -140,5 +170,15 @@ def _palette_color_names():
     r = get_redis()
     return sorted(
         key for key in r.hkeys("colors")
-        if key not in ("random", "black")
+        if key not in ("random", "black") and not _is_excluded_redis_color(r, key)
     )
+
+
+def _is_excluded_redis_color(r, key):
+    rgb = r.hget("colors", key)
+    if rgb is None:
+        return True
+    if isinstance(rgb, bytes):
+        rgb = rgb.decode("utf-8")
+    red, green, blue = (int(v) for v in rgb.split(","))
+    return is_excluded_palette_color(red, green, blue)

@@ -380,6 +380,39 @@
       opacity: 0.75;
       font-family: ui-monospace, monospace;
     }
+
+    #spotlight.unsupported {
+      background: linear-gradient(160deg, rgba(35, 35, 45, 0.96), rgba(18, 18, 28, 0.98));
+    }
+
+    #spotlight.unsupported .spotlight-hook {
+      color: #ffb4b4;
+    }
+
+    #spotlight.unsupported .spotlight-name {
+      font-size: clamp(2.2rem, 8vw, 5.5rem);
+      color: #fff;
+    }
+
+    #spotlight.unsupported .spotlight-sub {
+      color: #ffd2d2;
+      font-weight: 700;
+    }
+
+    .spotlight-message.hidden,
+    .hidden {
+      display: none;
+    }
+
+    .spotlight-message {
+      margin-top: 1rem;
+      max-width: 36rem;
+      padding: 0 1.5rem;
+      font-size: clamp(1rem, 2.2vw, 1.35rem);
+      line-height: 1.45;
+      text-align: center;
+      opacity: 0.92;
+    }
   </style>
 </head>
 <body>
@@ -449,6 +482,7 @@
       <div class="spotlight-name" id="spotlight-name"></div>
       <div class="spotlight-sub" id="spotlight-sub"></div>
       <div class="spotlight-hex" id="spotlight-hex"></div>
+      <div class="spotlight-message hidden" id="spotlight-message"></div>
     </div>
   </div>
 
@@ -462,6 +496,7 @@
     var spotlightName = document.getElementById("spotlight-name");
     var spotlightSub = document.getElementById("spotlight-sub");
     var spotlightHex = document.getElementById("spotlight-hex");
+    var spotlightMessage = document.getElementById("spotlight-message");
     var totalCount = document.getElementById("total-count");
     var paletteCount = document.getElementById("palette-count");
     var paletteCountHint = document.getElementById("palette-count-hint");
@@ -591,8 +626,11 @@
     }
 
     function hideSpotlight() {
-      spotlight.classList.remove("visible");
+      spotlight.classList.remove("visible", "unsupported");
       spotlight.style.background = "";
+      spotlightHex.textContent = "";
+      spotlightMessage.textContent = "";
+      spotlightMessage.classList.add("hidden");
       spotlightActive = false;
       startFeatureRotation();
       advanceFeature();
@@ -601,12 +639,16 @@
     function showSpotlight(state) {
       spotlightActive = true;
       clearInterval(featureTimer);
+      spotlight.classList.remove("unsupported");
+      spotlightMessage.classList.add("hidden");
+      spotlightMessage.textContent = "";
       lastLampRgb = "";
       lastAmbienceRgb = "";
       setLampColor(state.rgb);
       setLightAmbience(state.rgb);
       pulseLamp();
 
+      spotlight.querySelector(".spotlight-hook").textContent = "The light in the window just changed!";
       spotlightName.textContent = state.color_name;
       spotlightSub.textContent = state.subtitle || state.color_name;
       spotlightHex.textContent = state.hex || "";
@@ -617,6 +659,24 @@
       spotlightTimer = setTimeout(hideSpotlight, 3500);
     }
 
+    function showUnsupportedSpotlight(state) {
+      spotlightActive = true;
+      clearInterval(featureTimer);
+      spotlight.classList.add("unsupported");
+      spotlight.style.background = "";
+      spotlightHex.textContent = "";
+
+      spotlight.querySelector(".spotlight-hook").textContent = "Can't change the light to that color";
+      spotlightName.textContent = state.color_name;
+      spotlightSub.textContent = state.subtitle || "Not possible on a light";
+      spotlightMessage.textContent = state.message || "That color can't be shown on the Hue bulb — try a brighter, more vivid color!";
+      spotlightMessage.classList.remove("hidden");
+
+      clearTimeout(spotlightTimer);
+      spotlight.classList.add("visible");
+      spotlightTimer = setTimeout(hideSpotlight, 4500);
+    }
+
     function applyCurrentLight(state) {
       if (!spotlightActive) {
         applyLightState(state);
@@ -624,10 +684,15 @@
     }
 
     function handleState(state) {
-      if (!state || !state.rgb) return;
+      if (!state) return;
       if (typeof state.total_choices === "number") {
         totalCount.textContent = state.total_choices.toLocaleString();
       }
+      if (state.mode === "unsupported") {
+        showUnsupportedSpotlight(state);
+        return;
+      }
+      if (!state.rgb) return;
       if (state.recent && state.mode === "spotlight") {
         renderRecent(state.recent);
       }

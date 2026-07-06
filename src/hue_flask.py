@@ -4,8 +4,9 @@ from flask import Flask, request, jsonify
 from getRedisColor import getColor
 from hue_controller import HueController
 from name_converter import clean_name
+from hue_color import is_excluded_palette_color, parse_rgb_values
 from data_writer import writeFile, color_percent, mostRecentColors, numOfEachColor, invalidColors, first_entry_date
-from display_state import advance_cycle_color, build_state, publish_state
+from display_state import advance_cycle_color, build_state, is_likely_unsupported_color_name, publish_state, publish_unsupported_color
 from health_check import check_hue, check_redis
 import json, random, logging, redis, time
 from fuzzyColors import getFuzzyColor
@@ -27,6 +28,12 @@ def HEX_to_RGB(hexcode_color):
         return rgb_string
     except ValueError:
         return None
+
+
+UNSUPPORTED_COLOR_MESSAGE = (
+    "That color can't be shown on the light — blacks, grays, browns, and similar "
+    "muted colors don't work well. Try something brighter!"
+)
 
 
 def publish_color_to_display(color_name, rgb_values, subtitle=None):
@@ -101,6 +108,7 @@ def set_color():
         return str(response), 200, {'Content-Type': 'text/xml'}
 
     if color_name == "black":
+        publish_unsupported_color(unclean_color_name or color_name, subtitle="Not possible on a light")
         response = MessagingResponse()
         response.message("Haha... please use a color that contains light.")
         return str(response), 200, {'Content-Type': 'text/xml'}
@@ -164,8 +172,20 @@ def set_color():
 
     if rgb_values is None:
         logging.info("Color " + color_name + " was not recognized")
+        if is_likely_unsupported_color_name(color_name):
+            publish_unsupported_color(color_name, subtitle="Not possible on a light")
+            response = MessagingResponse()
+            response.message(UNSUPPORTED_COLOR_MESSAGE)
+            return str(response), 200, {'Content-Type': 'text/xml'}
         response = MessagingResponse()
         response.message("I'm sorry, but I don't recognize the color \"{}\".".format(color_name))
+        return str(response), 200, {'Content-Type': 'text/xml'}
+
+    r, g, b = parse_rgb_values(rgb_values)
+    if is_excluded_palette_color(r, g, b):
+        publish_unsupported_color(unclean_color_name or color_name, subtitle="Not possible on a light")
+        response = MessagingResponse()
+        response.message(UNSUPPORTED_COLOR_MESSAGE)
         return str(response), 200, {'Content-Type': 'text/xml'}
 
     display_color_name = clean_name(color_name)
