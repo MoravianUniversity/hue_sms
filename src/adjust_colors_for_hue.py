@@ -6,7 +6,7 @@ import shutil
 
 from dynaconf import Dynaconf
 
-from hue_color import adjust_rgb_for_hue, get_gamut
+from hue_color import adjust_rgb_for_hue, get_gamut, is_excluded_palette_color
 
 COLORS_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -28,10 +28,13 @@ def adjust_file(path, gamut, dry_run=False):
 
         name, red, green, blue = raw.split(",")
         r, g, b = int(red), int(green), int(blue)
+        if is_excluded_palette_color(r, g, b):
+            skipped.append(name)
+            changed += 1
+            continue
         mapped = adjust_rgb_for_hue(r, g, b, gamut=gamut)
         if mapped is None:
             skipped.append(name)
-            adjusted.append(line)
             continue
 
         nr, ng, nb = mapped
@@ -78,7 +81,9 @@ def main():
         changed, skipped = adjust_file(path, gamut, dry_run=args.dry_run)
         total_changed += changed
         if skipped:
-            print("Skipped {} in {} (black)".format(len(skipped), filename))
+            print("Removed {} excluded color(s) from {} (black/gray/brown/unsupported)".format(
+                len(skipped), filename
+            ))
         action = "Would adjust" if args.dry_run else "Adjusted"
         print("{} {} using gamut {} ({} value(s) changed)".format(
             action, filename, gamut_name, changed

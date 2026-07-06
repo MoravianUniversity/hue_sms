@@ -2,6 +2,7 @@ import os
 
 import redis
 
+from hue_color import is_excluded_palette_color
 from name_converter import clean_name
 
 COLORS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -31,6 +32,9 @@ def load_palette_from_csv():
                 if not line:
                     continue
                 name, red, green, blue = line.split(",")
+                r, g, b = int(red), int(green), int(blue)
+                if is_excluded_palette_color(r, g, b):
+                    continue
                 key = clean_name(name)
                 if key in seen:
                     continue
@@ -45,7 +49,14 @@ def load_palette():
         r = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
         colors = r.hgetall("colors")
         if colors:
-            palette = [_format_entry(name, rgb) for name, rgb in colors.items()]
+            palette = []
+            for name, rgb in colors.items():
+                if name == "random":
+                    continue
+                r, g, b = (int(v) for v in rgb.split(","))
+                if is_excluded_palette_color(r, g, b):
+                    continue
+                palette.append(_format_entry(name, rgb))
             palette.sort(key=lambda entry: entry["name"])
             return palette
     except redis.RedisError:

@@ -10,6 +10,8 @@ from bs4 import BeautifulSoup
 
 from name_converter import clean_name
 
+from hue_color import is_excluded_palette_color
+
 HEX_PATTERN = re.compile(r"#([0-9A-Fa-f]{6})")
 RGB_PATTERN = re.compile(r"\((\d+),\s*(\d+),\s*(\d+)\)")
 WIKIPEDIA_PAGE = os.path.join(os.path.dirname(__file__), "wikipedia_pages", "colors.html")
@@ -224,6 +226,8 @@ def extract_colors(file_path=WIKIPEDIA_PAGE):
         for name, rgb in parser(table):
             key = clean_name(name)
             if key in seen or key == "black":
+                continue
+            if is_excluded_palette_color(*rgb):
                 continue
             seen.add(key)
             ordered.append((name.strip(), rgb))

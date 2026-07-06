@@ -1,376 +1,276 @@
-Red,237,10,63
-Maroon,195,33,72
-Scarlet,253,14,53
-Brick Red,198,45,66
-English Vermilion,204,71,75
-Madder Lake,204,51,54
-Permanent Geranium Lake,225,44,44
-Maximum Red,217,33,33
-Indian Red,185,78,72
-Orange-Red,255,63,52
-Sunset Orange,254,76,64
-Bittersweet,254,111,94
-Dark Venetian Red,179,59,36
-Venetian Red,204,85,61
-Light Venetian Red,230,115,92
-Vivid Tangerine,255,153,128
-Middle Red,229,144,115
-Burnt Orange,255,112,52
-Red-Orange,255,104,31
-Orange,255,136,100
-Macaroni and Cheese,255,185,123
-Middle Yellow Red,236,177,118
-Mango Tango,231,114,0
-Yellow-Orange,255,174,66
-Maximum Yellow Red,242,186,73
-Banana Mania,251,231,178
-Maize,242,198,73
-Orange-Yellow,248,213,104
-Goldenrod,252,214,103
-Dandelion,254,216,93
-Yellow,252,232,131
-Green-Yellow,241,231,136
-Middle Yellow,255,235,0
-Olive Green,181,179,92
-Spring Green,236,235,189
-Maximum Yellow,250,250,55
-Canary,255,255,153
-Lemon Yellow,255,255,159
-Maximum Green Yellow,217,230,80
-Middle Green Yellow,172,191,96
-Inchworm,175,227,19
-Light Chrome Green,190,230,75
-Yellow-Green,197,225,122
-Maximum Green,94,140,49
-Asparagus,123,160,91
-Granny Smith Apple,157,224,147
-Fern,99,183,108
-Middle Green,77,140,87
-Green,58,166,85
-Medium Chrome Green,108,166,124
-Forest Green,95,167,119
-Sea Green,147,223,184
-Shamrock,51,204,153
-Mountain Meadow,26,179,133
-Jungle Green,41,171,135
-Caribbean Green,0,204,153
-Tropical Rain Forest,0,117,94
-Middle Blue Green,141,217,204
-Pine Green,1,120,111
-Maximum Blue Green,48,191,191
-Robin's Egg Blue,0,204,204
-Teal Blue,0,128,128
-Light Blue,143,216,216
-Aquamarine,149,224,232
-Turquoise Blue,108,218,231
-Outer Space,45,56,58
-Sky Blue,118,215,234
-Middle Blue,126,212,230
-Blue-Green,0,149,183
-Pacific Blue,0,157,196
-Cerulean,2,164,211
-Maximum Blue,71,171,204
-Blue (I),46,180,230
-Cerulean Blue,51,154,204
-Cornflower,147,204,234
-Green-Blue,40,135,200
-Midnight Blue,0,70,140
-Navy Blue,0,102,204
-Denim,21,96,189
-Blue (III),0,102,255
-Cadet Blue,169,178,195
-Periwinkle,195,205,230
-Blue (II),69,112,230
-Bluetiful,60,105,231
-Wild Blue Yonder,122,137,184
-Indigo,79,105,198
-Manatee,141,144,161
-Cobalt Blue,140,144,200
-Celestial Blue,112,112,204
-Blue Bell,153,153,204
-Maximum Blue Purple,172,172,230
-Violet-Blue,118,110,200
-Blue-Violet,100,86,183
-Ultramarine Blue,63,38,191
-Middle Blue Purple,139,114,190
-Purple Heart,101,45,193
-Royal Purple,107,63,160
-Violet (II),131,89,163
-Medium Violet,143,71,179
-Wisteria,201,160,220
-Lavender (I),191,143,204
-Vivid Violet,128,55,144
-Maximum Purple,115,51,128
-Purple Mountains' Majesty,214,174,221
-Fuchsia,193,84,193
-Pink Flamingo,252,116,253
-Violet (I),115,46,108
-Brilliant Rose,230,103,206
-Orchid,226,156,210
-Plum,142,49,121
-Medium Rose,217,108,190
-Thistle,235,176,215
-Mulberry,200,80,155
-Red-Violet,187,51,133
-Middle Purple,217,130,181
-Maximum Red Purple,166,58,121
-Jazzberry Jam,165,11,94
-Eggplant,97,64,81
-Magenta,246,83,166
-Cerise,218,50,135
-Wild Strawberry,255,51,153
-Lavender (II),251,174,210
+Red,255,54,78
+Scarlet,255,55,65
+Permanent Geranium Lake,255,136,121
+Maximum Red,255,137,122
+Orange-Red,255,75,66
+Sunset Orange,255,88,77
+Bittersweet,255,119,103
+Vivid Tangerine,255,157,132
+Burnt Orange,255,120,64
+Red-Orange,255,112,44
+Orange,255,140,108
+Macaroni and Cheese,255,185,127
+Middle Yellow Red,255,192,132
+Mango Tango,255,194,118
+Yellow-Orange,255,174,74
+Maximum Yellow Red,255,196,81
+Maize,255,209,81
+Orange-Yellow,255,219,108
+Goldenrod,255,216,105
+Dandelion,255,217,94
+Yellow,255,234,133
+Green-Yellow,255,244,144
+Middle Yellow,255,235,58
+Olive Green,255,252,132
+Spring Green,255,253,204
+Maximum Yellow,251,255,63
+Canary,255,254,153
+Lemon Yellow,255,254,159
+Maximum Green Yellow,240,255,89
+Middle Green Yellow,230,255,130
+Inchworm,194,255,65
+Light Chrome Green,211,255,84
+Yellow-Green,223,255,139
+Maximum Green,175,255,96
+Asparagus,198,255,148
+Granny Smith Apple,179,255,168
+Fern,140,255,153
+Middle Green,145,255,162
+Green,97,255,134
+Medium Chrome Green,168,255,192
+Forest Green,148,255,184
+Sea Green,169,255,210
+Shamrock,70,255,192
+Mountain Meadow,46,255,191
+Jungle Green,70,255,203
+Caribbean Green,42,255,191
+Tropical Rain Forest,46,255,207
+Middle Blue Green,166,255,239
+Pine Green,54,255,236
+Maximum Blue Green,71,254,255
+Robin's Egg Blue,59,255,254
+Teal Blue,59,255,254
+Light Blue,169,254,255
+Aquamarine,164,246,255
+Turquoise Blue,124,240,255
+Sky Blue,133,234,255
+Middle Blue,141,235,255
+Blue-Green,64,208,255
+Pacific Blue,64,205,255
+Cerulean,66,198,255
+Maximum Blue,98,214,255
+Blue (I),65,200,255
+Cerulean Blue,76,194,255
+Cornflower,161,222,255
+Green-Blue,68,177,255
+Midnight Blue,73,139,255
+Navy Blue,73,137,255
+Denim,73,140,255
+Blue (III),77,113,255
+Periwinkle,216,227,255
+Blue (II),94,136,255
+Bluetiful,84,129,255
+Wild Blue Yonder,174,191,255
+Indigo,116,145,255
+Cobalt Blue,181,185,255
+Celestial Blue,149,149,255
+Blue Bell,192,192,255
+Maximum Blue Purple,191,191,255
+Violet-Blue,158,150,255
+Blue-Violet,150,131,255
+Ultramarine Blue,105,76,255
+Middle Blue Purple,191,159,255
+Purple Heart,147,82,255
+Royal Purple,177,117,255
+Violet (II),207,147,255
+Medium Violet,206,114,255
+Wisteria,233,186,255
+Lavender (I),239,180,255
+Vivid Violet,228,112,255
+Maximum Purple,230,117,255
+Purple Mountains' Majesty,247,201,255
+Fuchsia,254,121,255
+Pink Flamingo,254,124,255
+Violet (I),255,119,240
+Brilliant Rose,255,123,228
+Orchid,255,177,237
+Plum,255,103,219
+Medium Rose,255,132,224
+Thistle,255,191,233
+Mulberry,255,112,199
+Red-Violet,255,85,187
+Middle Purple,255,157,213
+Maximum Red Purple,255,102,191
+Jazzberry Jam,255,54,156
+Eggplant,255,175,216
+Magenta,255,96,176
+Cerise,255,73,163
+Wild Strawberry,255,65,159
+Lavender (II),255,177,213
 Cotton Candy,255,183,213
-Carnation Pink,255,166,201
-Violet-Red,247,70,138
-Razzmatazz,227,11,92
-Pig Pink,253,215,228
-Carmine,230,46,107
-Blush,219,80,121
-Tickle Me Pink,252,128,165
-Mauvelous,240,145,169
-Salmon,255,145,164
-Middle Red Purple,165,83,83
-Mahogany,202,52,53
-Melon,254,186,173
-Pink Sherbert,247,163,142
-Burnt Sienna,233,116,81
-Brown,175,89,62
-Sepia,158,91,64
-Fuzzy Wuzzy,135,66,31
-Beaver,146,111,91
-Tumbleweed,222,166,129
-Raw Sienna,210,125,70
-Van Dyke Brown,102,66,40
-Tan,217,154,108
-Desert Sand,237,201,175
-Peach,255,203,164
-Burnt Umber,128,85,51
-Apricot,253,213,177
-Almond,238,217,196
-Raw Umber,102,82,51
-Shadow,131,112,80
-Raw Sienna (I),230,188,92
-Timberwolf,217,214,207
-Gold (I),146,146,110
-Gold (II),230,190,138
-Silver,201,192,187
-Copper,218,138,103
-Antique Brass,200,138,101
-Charcoal Gray,115,106,98
-Gray,139,134,128
-Blue-Gray,200,200,205
+Carnation Pink,255,167,201
+Violet-Red,255,85,150
+Razzmatazz,255,54,114
+Pig Pink,255,216,229
+Carmine,255,66,128
+Tickle Me Pink,255,134,171
+Salmon,255,149,168
+Middle Red Purple,255,177,168
+Burnt Sienna,255,177,136
+Radical Red,255,67,106
+Metallic Gold,211,175,55
+Wild Watermelon,255,100,129
+Outrageous Orange,255,104,67
+Atomic Tangerine,255,157,108
+Neon Carrot,255,157,59
+Sunglow,255,204,55
+Laser Lemon,255,254,102
+Unmellow Yellow,255,254,102
+Electric Lime,201,255,64
+Screamin' Green,106,255,106
+Magic Mint,181,255,222
+Blizzard Blue,97,212,255
+Shocking Pink,254,118,255
+Razzle Dazzle Rose,255,69,225
+Hot Magenta,255,54,205
+Purple Pizzazz,255,54,205
+Cerulean Frost,148,204,255
+Cosmic Cobalt,110,108,255
+Glossy Grape,243,209,255
+Green Sheen,163,255,236
+Misty Moss,255,245,164
+Mystic Maroon,255,111,184
+Pearly Purple,255,151,226
+Pewter Blue,195,234,255
+Polished Pine,148,255,229
+Shadow Blue,186,216,255
+Shiny Shamrock,148,255,185
+Steel Teal,177,253,255
+Sugar Plum,255,146,208
+Twilight Lavender,255,144,200
+Wintergreen Dream,165,255,235
+Banana,255,217,94
+Blueberry,94,136,255
+Bubble Gum,255,134,171
+Daffodil,255,235,114
+Eucalyptus,70,255,203
+Fresh Air,133,234,255
+Grape,207,147,255
+Jelly Bean,255,140,61
+Lemon,255,235,114
+Lilac,233,186,255
+Lime,223,255,139
+New Car,77,113,255
+Pine,54,255,236
+Rose,255,54,78
+Shampoo,255,167,201
+Soap,216,227,255
+Strawberry,255,65,159
+Tulip,255,140,61
+Amethyst,173,166,255
+Emerald,46,255,208
+Jade,121,255,219
+Lapis Lazuli,107,159,255
+Malachite,124,251,255
+Moonstone,86,222,255
+Peridot,252,255,109
+Rose Quartz,255,125,211
+Ruby,255,108,164
+Sapphire,89,158,255
+Blue,203,244,255
+Violet,255,117,217
+Pink,255,142,186
+Baseball Mitt,255,177,136
+Bubble Bath,255,134,171
+Flower Shop,233,186,255
+Grandma's Perfume,255,140,61
+Koala Tree,70,255,203
+Pine Tree,54,255,236
+Sharpening Pencils,255,216,105
+Smell the Roses,255,54,78
+Sunny Day,255,235,114
+Wash the Dog,255,217,94
+Baby's Blanket,255,142,186
+Blazing Bonfire,255,234,133
+Lemon Lime Zing,255,234,133
+Magenta Mix-Up,255,182,215
+Mixed Veggies,255,254,115
+Rainforest,162,255,190
+Stonewashed,140,236,255
+Warm and Fuzzy,255,142,186
+Aqua Pearl,118,225,255
+Caribbean Green Pearl,125,255,167
+Key Lime Pearl,242,255,146
+Mandarin Pearl,255,133,84
+Midnight Pearl,254,105,255
+Mystic Pearl,255,108,160
+Ocean Blue Pearl,127,110,255
+Ocean Green Pearl,102,255,195
+Orchid Pearl,255,147,189
+Rose Pearl,255,73,116
+Salmon Pearl,255,85,91
+Sunny Pearl,255,254,129
+Sunset Pearl,255,216,129
+Turquoise Pearl,79,231,255
+Blue Green with Glitzy Gold Glitter,64,209,255
+Green With Twinkling Turquoise Glitter,51,255,180
+Maroon With Glitzy Gold Glitter,132,244,255
+Orange With Twinkling Turquoise Glitter,255,125,68
+Orchid With Twinkling Turquoise Glitter,132,244,255
+Red With Shimmering Silver Glitter,255,54,95
+Royal Purple With Ruby Red Glitter,187,134,255
+Sky Blue With Glitzy Gold Glitter,255,54,95
+Yellow With Rainbow Glitter,255,234,133
+B'dazzled Blue,98,161,255
+Cyber Grape,189,148,255
+Deep Space Sparkle,180,237,255
+Illuminating Emerald,96,255,211
+Metallic Seaweed,63,230,255
+Razzmic Berry,255,150,241
+Sheen Green,168,255,68
+Steel Blue,68,194,255
+Alien Armpit,223,255,139
+Booger Buster,255,253,204
+Gargoyle Gas,255,217,94
+Magic Potion,255,54,78
+Ogre Odor,255,112,44
+Pixie Powder,150,131,255
+Princess Perfume,255,134,171
+Sasquatch Socks,255,85,150
+Sea Serpent,59,255,254
+Smashed Pumpkin,255,140,61
+Sunburnt Cyclops,255,194,118
+Winter Wizard,133,234,255
+Sizzling Red,255,69,97
+Red Salsa,255,71,87
+Tart Orange,255,90,83
+Orange Soda,255,102,75
+Bright Yellow,255,171,45
+Yellow Sunshine,255,247,61
+Slimy Green,71,255,69
+Green Lizard,173,255,65
+Denim Blue,77,113,255
+Blue Jeans,109,191,255
+Plump Purple,140,116,255
+Purple Plum,219,124,255
+Amazon Forest,152,255,76
+Caribbean Current,250,255,63
+Florida Sunrise,255,179,49
+Grand Canyon,255,216,55
+Maui Sunset,228,150,255
+Milky Way,255,150,56
+Fiery Rose,255,95,120
+Sizzling Sunset,255,218,56
+Heat Wave,255,129,34
+Lemon Glacier,249,255,63
+Spring Frost,131,255,69
+Absolute Zero,77,113,255
+Winter Sky,255,54,131
+Frostbite,255,72,187
+Pink Flamingo,254,121,255
+Carnation Pink,255,167,201
+Pig Pink,255,216,229
+Tickle Me Pink,255,132,169
+Shocking Pink,254,114,255
+Pink Pearl,255,166,187
 White,255,255,255
-Radical Red,255,53,94
-Wild Watermelon,253,91,120
-Outrageous Orange,255,96,55
-Atomic Tangerine,255,153,102
-Neon Carrot,255,153,51
-Sunglow,255,204,51
-Laser Lemon,255,255,102
-Unmellow Yellow,255,255,102
-Electric Lime,204,255,0
-Screamin' Green,102,255,102
-Magic Mint,170,240,209
-Blizzard Blue,80,191,230
-Shocking Pink,255,110,255
-Razzle Dazzle Rose,238,52,210
-Hot Magenta,255,0,204
-Purple Pizzazz,255,0,204
-Aztec Gold,195,153,83
-Burnished Brown,161,122,116
-Cerulean Frost,109,155,195
-Cinnamon Satin,205,96,126
-Copper Penny,173,111,105
-Cosmic Cobalt,46,45,136
-Glossy Grape,171,146,179
-Granite Gray,103,103,103
-Green Sheen,110,174,161
-Lilac Luster,174,152,170
-Misty Moss,187,180,119
-Mystic Maroon,173,67,121
-Pearly Purple,183,104,162
-Pewter Blue,139,168,183
-Polished Pine,93,164,147
-Quick Silver,166,166,166
-Rose Dust,158,94,111
-Rusty Red,218,44,67
-Shadow Blue,119,139,165
-Shiny Shamrock,95,167,120
-Steel Teal,95,138,139
-Sugar Plum,145,78,117
-Twilight Lavender,138,73,107
-Wintergreen Dream,86,136,125
-Baby Powder,255,255,255
-Banana,254,216,93
-Blueberry,69,112,230
-Bubble Gum,252,128,165
-Cedar Chest,202,52,53
-Cherry,195,33,72
-Chocolate,175,89,62
-Coconut,255,255,255
-Daffodil,251,232,112
-Dirt,158,91,64
-Eucalyptus,41,171,135
-Fresh Air,118,215,234
-Grape,131,89,163
-Jelly Bean,255,136,51
-Leather Jacket,0,0,0
-Lemon,251,232,112
-Licorice,0,0,0
-Lilac,201,160,220
-Lime,197,225,122
-Lumber,253,213,177
-New Car,0,102,255
-Pine,1,120,111
-Rose,237,10,63
-Shampoo,255,166,201
-Smoke,139,134,128
-Soap,195,205,230
-Strawberry,255,51,153
-Tulip,255,136,51
-Amethyst,100,96,154
-Citrine,147,55,9
-Emerald,20,169,137
-Jade,70,154,132
-Jasper,208,83,64
-Lapis Lazuli,67,108,185
-Malachite,70,148,150
-Moonstone,58,168,193
-Onyx,53,56,57
-Peridot,171,173,72
-Pink Pearl,176,112,128
-Rose Quartz,189,85,156
-Ruby,170,64,105
-Sapphire,45,93,161
-Smokey Topaz,131,42,13
-Tiger's Eye,181,105,23
-Blue,192,231,241
-Violet,150,61,127
-Pink,255,138,186
-Color changer,255,233,209
-Baby's Powder,255,255,255
-Baseball Mitt,233,116,81
-Bubble Bath,252,128,165
-Earthworm,198,45,66
-Flower Shop,201,160,220
-Grandma's Perfume,255,136,51
-Koala Tree,41,171,135
-New Sneakers,0,0,0
-Pet Shop,175,89,62
-Pine Tree,1,120,111
-Saw Dust,255,203,164
-Sharpening Pencils,252,214,103
-Smell the Roses,237,10,63
-Sunny Day,251,232,112
-Wash the Dog,254,216,93
-Baby's Blanket,255,138,186
-Blazing Bonfire,252,232,131
-Cool and Crazy,255,255,255
-Lemon Lime Zing,252,232,131
-Magenta Mix-Up,252,180,213
-Mixed Veggies,182,182,80
-Off-Road,222,170,136
-Peaches 'n Cream,255,255,255
-Rainforest,109,174,129
-Shrimp Cocktail,255,255,255
-Southwest,255,255,255
-Star Spangled Banner,248,239,230
-Stonewashed,128,218,235
-Surf's Up,255,255,255
-Twister,255,255,255
-Warm and Fuzzy,255,138,186
-Aqua Pearl,95,190,215
-Black Coral Pearl,84,98,111
-Caribbean Green Pearl,106,218,142
-Cultured Pearl,245,245,245
-Key Lime Pearl,232,244,140
-Mandarin Pearl,243,122,72
-Midnight Pearl,112,38,112
-Mystic Pearl,214,82,130
-Ocean Blue Pearl,79,66,181
-Ocean Green Pearl,72,191,145
-Orchid Pearl,123,66,89
-Rose Pearl,240,56,101
-Salmon Pearl,241,68,74
-Sunny Pearl,242,242,122
-Sunset Pearl,241,204,121
-Turquoise Pearl,59,188,208
-Black With Glitzy Gold Glitter,0,0,0
-Blue With Shimmering Silver Glitter,231,198,151
-Blue Green with Glitzy Gold Glitter,13,152,186
-Carnation Pink With Lavender Glitter,231,198,151
-Green With Twinkling Turquoise Glitter,28,172,120
-Maroon With Glitzy Gold Glitter,119,221,231
-Orange With Twinkling Turquoise Glitter,255,117,56
-Orchid With Twinkling Turquoise Glitter,119,221,231
-Red With Shimmering Silver Glitter,238,32,77
-Red Violet With Glitzy Gold Glitter,205,197,194
-Royal Purple With Ruby Red Glitter,120,81,169
-Sky Blue With Glitzy Gold Glitter,238,32,77
-White With Confetti Glitter,255,255,255
-Yellow With Rainbow Glitter,252,232,131
-Alloy Orange,196,98,16
-B'dazzled Blue,46,88,148
-Big Dip O' Ruby,156,37,66
-Bittersweet Shimmer,191,79,81
-Blast Off Bronze,165,113,100
-Cyber Grape,88,66,124
-Deep Space Sparkle,74,100,108
-Gold Fusion,133,117,78
-Illuminating Emerald,49,145,119
-Metallic Seaweed,10,126,140
-Metallic Sunburst,156,124,56
-Razzmic Berry,141,78,133
-Sheen Green,143,212,0
-Shimmering Blush,217,134,149
-Sonic Silver,117,117,117
-Steel Blue,0,129,171
-Alien Armpit,197,225,122
-Big Foot Feet,217,154,108
-Booger Buster,236,235,189
-Dingy Dungeon,195,33,72
-Gargoyle Gas,254,216,93
-Giant's Club,185,78,72
-Magic Potion,237,10,63
-Mummy's Tomb,139,134,128
-Ogre Odor,255,104,31
-Pixie Powder,100,86,183
-Princess Perfume,252,128,165
-Sasquatch Socks,247,70,138
-Sea Serpent,0,204,204
-Smashed Pumpkin,255,136,51
-Sunburnt Cyclops,231,114,0
-Winter Wizard,118,215,234
-Sizzling Red,255,56,85
-Red Salsa,253,58,74
-Tart Orange,251,77,70
-Orange Soda,250,91,61
-Bright Yellow,255,170,29
-Yellow Sunshine,255,247,0
-Slimy Green,41,150,23
-Green Lizard,167,244,50
-Denim Blue,34,67,182
-Blue Jeans,93,173,236
-Plump Purple,89,70,178
-Purple Plum,156,81,182
-Sweet Brown,168,55,49
-Brown Sugar,175,110,77
-Eerie Black,27,27,27
-Black Shadows,191,175,178
-Amazon Forest,146,246,70
-Caribbean Current,253,254,3
-Florida Sunrise,255,179,41
-Grand Canyon,255,216,44
-Maui Sunset,142,89,159
-Milky Way,236,135,43
-Sahara Desert,245,203,189
-Yosemite Campfire,176,110,84
-Fiery Rose,255,84,112
-Sizzling Sunset,255,219,0
-Heat Wave,255,122,0
-Lemon Glacier,253,255,0
-Spring Frost,135,255,42
-Absolute Zero,0,72,186
-Winter Sky,255,0,124
-Frostbite,233,54,167

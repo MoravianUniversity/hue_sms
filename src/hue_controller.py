@@ -32,6 +32,21 @@ class HueController:
         logging.info("Server was successfully able to connect to the bridge")
         self.light = self.bridge.lights[light_number]
 
+    def _apply_chromatic(self, x, y, bri, saturation, transitiontime):
+        self.light.transitiontime = transitiontime
+        self.light.on = True
+        self.light.brightness = bri
+        self.light.xy = (x, y)
+        self.light.saturation = saturation
+
+    def _apply_white(self, bri, transitiontime):
+        self.bridge.set_light(self.light.light_id, {
+            "on": True,
+            "bri": bri,
+            "sat": 0,
+            "transitiontime": transitiontime,
+        })
+
     def set_rgb(self, rgb_values, transitiontime=4):
         if type(rgb_values) != str:
             rgb_values = rgb_values.decode("utf-8")
@@ -39,19 +54,17 @@ class HueController:
         x, y, bri, saturation = rgb_to_hue(r, g, b, gamut=HUE_GAMUT)
 
         try:
-            self.light.on = True
-            self.light.transitiontime = transitiontime
-            self.light.brightness = bri
-            self.light.xy = (x, y)
-            self.light.saturation = saturation
+            self.connect()
+            if saturation == 0:
+                self._apply_white(bri, transitiontime)
+            else:
+                self._apply_chromatic(x, y, bri, saturation, transitiontime)
         except (PhueException, AttributeError):
             logging.info("Hue connection lost, reconnecting")
             self.light = None
             self.bridge = None
             self.connect()
-            self.light.on = True
-            self.light.transitiontime = transitiontime
-            self.light.brightness = bri
-            self.light.xy = (x, y)
-            self.light.saturation = saturation
-
+            if saturation == 0:
+                self._apply_white(bri, transitiontime)
+            else:
+                self._apply_chromatic(x, y, bri, saturation, transitiontime)
