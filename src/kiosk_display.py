@@ -4,21 +4,22 @@ import os
 import re
 
 import qrcode
-import redis
-from dynaconf import Dynaconf
 from flask import Flask, Response, jsonify, render_template, send_file
 
+from config import (
+    DEFAULT_HUE_HEALTH_URL,
+    DEFAULT_SMS_PHONE,
+    data_file_path,
+    get_redis,
+    settings,
+)
 from display_state import DISPLAY_CHANNEL, get_display_state, get_recent_picks, get_total_choices
 from health_check import check_redis, fetch_hue_flask_health
 from palette import load_palette
 
-settings = Dynaconf(settings_files=["settings.toml"])
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__, template_folder=os.path.join(BASE_DIR, "templates"))
-DEFAULT_PHONE = "484-895-1386"
-DEFAULT_HUE_HEALTH_URL = "http://127.0.0.1:5000/health"
-DATA_FILE = os.path.join(BASE_DIR, "data.csv")
+DATA_FILE = data_file_path()
 
 
 def _phone_digits(phone):
@@ -44,7 +45,7 @@ def enrich_state(state, include_recent=False):
 
 @app.route("/")
 def kiosk():
-    phone = getattr(settings, "sms_phone_display", DEFAULT_PHONE)
+    phone = getattr(settings, "sms_phone_display", DEFAULT_SMS_PHONE)
     return render_template("kiosk.html", phone=phone)
 
 
@@ -88,7 +89,7 @@ def api_palette():
 
 @app.route("/api/qr")
 def api_qr():
-    phone = getattr(settings, "sms_phone_display", DEFAULT_PHONE)
+    phone = getattr(settings, "sms_phone_display", DEFAULT_SMS_PHONE)
     qr = qrcode.QRCode(box_size=8, border=2)
     qr.add_data(_sms_uri(phone))
     qr.make(fit=True)
@@ -102,7 +103,7 @@ def api_qr():
 @app.route("/events")
 def events():
     def stream():
-        r = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
+        r = get_redis(decode_responses=True)
         pubsub = r.pubsub(ignore_subscribe_messages=True)
         pubsub.subscribe(DISPLAY_CHANNEL)
 

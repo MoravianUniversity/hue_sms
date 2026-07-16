@@ -1,13 +1,13 @@
 import os
 
-import redis
+from config import get_redis
 
 from hue_color import is_excluded_palette_color
 from name_converter import clean_name
 
 
 def go():
-    db = redis.Redis(host="localhost", port=6379, db=0)
+    db = get_redis()
 
     location = os.path.realpath(
         os.path.join(os.getcwd(), os.path.dirname(__file__)))

@@ -1,11 +1,11 @@
-import redis
 import os
+
+from config import get_redis
 
 
 def go():
 
-    r = redis.Redis(
-        host='localhost', port=6379, db=0)
+    r = get_redis()
 
     location = os.path.realpath(
         os.path.join(os.getcwd(), os.path.dirname(__file__)))

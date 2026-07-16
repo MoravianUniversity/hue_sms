@@ -1,10 +1,11 @@
 import datetime
 import csv
 from collections import deque
-from getRedisColor import getColor
-import redis
 
-DATA_FILE = "data.csv"
+from config import data_file_path, get_redis
+from getRedisColor import getColor
+
+DATA_FILE = data_file_path()
 
 
 def writeFile(file, number, color, response):
@@ -103,7 +104,7 @@ def invalidColors(file):
 
 
 def color_percent(color):
-    r = redis.Redis(host='localhost', port=6379, db=0)
+    r = get_redis()
     color = color.lower()
 
     color_raw = r.hget('color_totals', color)
@@ -111,8 +112,13 @@ def color_percent(color):
     if color_raw is None or total_raw is None:
         return 0.0
 
-    color_total = float(color_raw.decode('utf-8'))
-    total = float(total_raw.decode('utf-8'))
+    if isinstance(color_raw, bytes):
+        color_raw = color_raw.decode('utf-8')
+    if isinstance(total_raw, bytes):
+        total_raw = total_raw.decode('utf-8')
+
+    color_total = float(color_raw)
+    total = float(total_raw)
     if total == 0:
         return 0.0
 

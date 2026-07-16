@@ -1,5 +1,6 @@
 import os
 
+from config import get_redis
 import redis
 
 from hue_color import is_excluded_palette_color
@@ -46,7 +47,7 @@ def load_palette_from_csv():
 
 def load_palette():
     try:
-        r = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
+        r = get_redis(decode_responses=True)
         colors = r.hgetall("colors")
         if colors:
             palette = []

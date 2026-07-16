@@ -1,6 +1,6 @@
 import os
 
-import redis
+from config import get_redis
 
 from hue_color import is_excluded_palette_color
 from name_converter import clean_name
@@ -118,7 +118,7 @@ def prune_excluded_colors(r):
 
 
 def go(refresh=False):
-    r = redis.Redis(host="localhost", port=6379, db=0)
+    r = get_redis()
     added = 0
     updated = 0
     for filename in ("colors.csv", "extra_colors.csv"):

@@ -1,5 +1,6 @@
-from redis import Redis
+from config import get_redis
 from name_converter import clean_name
+
 
 class colorsRedis:
 
@@ -7,7 +8,7 @@ class colorsRedis:
         self.connect()
 
     def connect(self):
-        self.db = Redis('localhost', 6379)
+        self.db = get_redis()
 
     def numColors(self):
         return len(self.db.hgetall("colors"))

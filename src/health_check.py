@@ -5,10 +5,19 @@ import urllib.request
 import redis
 from phue import PhueException
 
+from config import get_redis
 
-def check_redis(host="localhost", port=6379):
+
+def check_redis(host=None, port=None):
     try:
-        redis.Redis(host=host, port=port, db=0).ping()
+        if host is None and port is None:
+            get_redis().ping()
+        else:
+            redis.Redis(
+                host=host or "localhost",
+                port=port or 6379,
+                db=0,
+            ).ping()
         return True
     except redis.RedisError:
         return False

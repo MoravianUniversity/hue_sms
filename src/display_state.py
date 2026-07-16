@@ -2,8 +2,7 @@ import json
 import re
 import time
 
-import redis
-
+from config import get_redis
 from hue_color import is_excluded_palette_color
 
 DISPLAY_STATE_KEY = "display:state"
@@ -18,10 +17,6 @@ UNSUPPORTED_NAME_PATTERN = re.compile(
     r"fuzzy wuzzy|desert sand|raw sienna|burnt sienna|van dyke)\b",
     re.IGNORECASE,
 )
-
-
-def get_redis(decode_responses=True):
-    return redis.Redis(host="localhost", port=6379, db=0, decode_responses=decode_responses)
 
 
 def rgb_string_to_hex(rgb_values):

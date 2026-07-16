@@ -4,8 +4,6 @@ import argparse
 import os
 import shutil
 
-from dynaconf import Dynaconf
-
 from hue_color import adjust_rgb_for_hue, get_gamut, is_excluded_palette_color
 
 COLORS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -69,7 +67,8 @@ def main():
     )
     args = parser.parse_args()
 
-    settings = Dynaconf(settings_files=["settings.toml"])
+    from config import settings
+
     gamut_name = args.gamut or getattr(settings, "hue_gamut", "C")
     gamut = get_gamut(gamut_name)
 

@@ -1,15 +1,12 @@
-from phue import Bridge, PhueException
-import name_converter
-from name_converter import clean_name
-from dynaconf import Dynaconf
 import logging
-from getRedisColor import getColor
+
+from phue import Bridge, PhueException
+
+import name_converter
+from config import configure_logging, settings
 from hue_color import get_gamut, rgb_to_hue
 
-logging.basicConfig(level=logging.INFO,filename="hue_log.log",
-                    format="%(asctime)s:%(levelname)s:%(message)s"	)
-
-settings = Dynaconf(settings_files=['settings.toml'])
+configure_logging()
 
 IP_address = settings.light_ip
 light_number = settings.light_number

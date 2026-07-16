@@ -2,19 +2,19 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.express as px
-import redis
 from dash.dependencies import Input, Output
 import pandas as pd
 from datetime import datetime
 import plotly.graph_objects as go
 from PIL import Image
 
+from config import data_file_path, get_redis
+
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
-r = redis.Redis(
-    host='localhost', port=6379, db=0)
+r = get_redis()
 
 
 def get_responsesDict(filename):

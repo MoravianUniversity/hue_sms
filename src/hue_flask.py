@@ -1,6 +1,7 @@
 from phue import PhueException
 from twilio.twiml.messaging_response import MessagingResponse
 from flask import Flask, request, jsonify
+from config import configure_logging, data_file_path, get_redis
 from getRedisColor import getColor
 from hue_controller import HueController
 from name_converter import clean_name
@@ -8,16 +9,15 @@ from hue_color import is_excluded_palette_color, parse_rgb_values
 from data_writer import writeFile, color_percent, mostRecentColors, numOfEachColor, invalidColors, first_entry_date
 from display_state import advance_cycle_color, build_state, is_likely_unsupported_color_name, publish_state, publish_unsupported_color
 from health_check import check_hue, check_redis
-import json, random, logging, redis, time
+import json, random, logging, time
 from fuzzyColors import getFuzzyColor
 from PIL import ImageColor
 
-logging.basicConfig(level=logging.INFO,filename="hue_log.log",
-                    format="%(asctime)s:%(levelname)s:%(message)s"	)
+configure_logging()
 
 app = Flask(__name__)
 controller = HueController()
-file = "data.csv"
+file = data_file_path()
 LAST_WEBHOOK_KEY = "webhook:last"
 
 
@@ -91,7 +91,7 @@ def set_color():
     is_random = False
     is_Fuzzy = False
     is_Hex = False
-    database = redis.Redis(host='localhost', port=6379, db=0)
+    database = get_redis()
 
     color_names = get_color_names_from_redis(database)
 
@@ -247,7 +247,7 @@ def set_color():
 
 @app.route('/health', methods=['GET'])
 def health():
-    database = redis.Redis(host='localhost', port=6379, db=0)
+    database = get_redis()
     status = {
         "redis": check_redis(),
         "hue": check_hue(controller),

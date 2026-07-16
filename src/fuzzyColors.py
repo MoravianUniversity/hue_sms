@@ -1,9 +1,11 @@
 from thefuzz import fuzz, process
+
+from config import get_redis
 import redis
 
 
 def _load_color_names():
-    client = redis.Redis(host="localhost", port=6379, db=0)
+    client = get_redis()
     try:
         names = []
         for color in client.hkeys("colors"):
