@@ -29,20 +29,27 @@ RGB = {
 }
 
 
-class FakeDatabase:
-    def hkeys(self, name):
-        if name == "colors":
-            return list(PALETTE) + ["random"]
-        return []
+class FakePalette:
+    def list_names(self):
+        return list(PALETTE)
+
+    def get_rgb(self, name):
+        return RGB.get(name)
+
+    def fuzzy_match(self, name):
+        return "sky blue" if name == "skyblue" else None
+
+
+class FakeDisplay:
+    def advance_cycle(self):
+        return "magenta"
 
 
 @pytest.fixture
 def resolver():
     return ColorResolver(
-        get_palette_names_fn=lambda _db: list(PALETTE),
-        get_rgb_fn=lambda name: RGB.get(name),
-        fuzzy_match_fn=lambda name: "sky blue" if name == "skyblue" else None,
-        advance_cycle_fn=lambda: "magenta",
+        palette_repo=FakePalette(),
+        display_repo=FakeDisplay(),
         random_choice_fn=lambda choices: "goldenrod",
     )
 
@@ -56,27 +63,27 @@ def test_hex_to_rgb_returns_none_for_invalid():
 
 
 def test_empty_input_returns_empty_command(resolver):
-    result = resolver.resolve("", FakeDatabase())
+    result = resolver.resolve("")
     assert result == SpecialCommand(COMMAND_EMPTY, "")
 
 
 def test_black_returns_black_command(resolver):
-    result = resolver.resolve("black", FakeDatabase())
+    result = resolver.resolve("black")
     assert result == SpecialCommand(COMMAND_BLACK, "black")
 
 
 def test_options_returns_options_command(resolver):
-    result = resolver.resolve("Options", FakeDatabase())
+    result = resolver.resolve("Options")
     assert result == SpecialCommand(COMMAND_OPTIONS, "Options")
 
 
 def test_colors_list_returns_colors_list_command(resolver):
-    result = resolver.resolve("Colors List", FakeDatabase())
+    result = resolver.resolve("Colors List")
     assert result == SpecialCommand(COMMAND_COLORS_LIST, "Colors List")
 
 
 def test_exact_palette_match(resolver):
-    result = resolver.resolve("Sky Blue", FakeDatabase())
+    result = resolver.resolve("Sky Blue")
     assert isinstance(result, ResolvedColor)
     assert result.color_key == "sky blue"
     assert result.rgb == "118,215,234"
@@ -86,14 +93,14 @@ def test_exact_palette_match(resolver):
 
 
 def test_fuzzy_match(resolver):
-    result = resolver.resolve("skyblue", FakeDatabase())
+    result = resolver.resolve("skyblue")
     assert isinstance(result, ResolvedColor)
     assert result.color_key == "sky blue"
     assert result.match_kind == MATCH_FUZZY
 
 
 def test_hex_color(resolver):
-    result = resolver.resolve("#FF2A45", FakeDatabase())
+    result = resolver.resolve("#FF2A45")
     assert isinstance(result, ResolvedColor)
     assert result.rgb == "255,42,69"
     assert result.match_kind == MATCH_HEX
@@ -102,7 +109,7 @@ def test_hex_color(resolver):
 
 
 def test_random_picks_from_palette(resolver):
-    result = resolver.resolve("random", FakeDatabase())
+    result = resolver.resolve("random")
     assert isinstance(result, ResolvedColor)
     assert result.color_key == "goldenrod"
     assert result.match_kind == MATCH_RANDOM
@@ -110,45 +117,54 @@ def test_random_picks_from_palette(resolver):
 
 
 def test_cycle_advances(resolver):
-    result = resolver.resolve("next", FakeDatabase())
+    result = resolver.resolve("next")
     assert isinstance(result, ResolvedColor)
     assert result.color_key == "magenta"
     assert result.match_kind == MATCH_CYCLE
 
 
 def test_unknown_color(resolver):
-    result = resolver.resolve("not-a-real-color", FakeDatabase())
+    result = resolver.resolve("not-a-real-color")
     assert isinstance(result, ResolutionError)
     assert result.reason == ERROR_UNKNOWN
 
 
 def test_unsupported_name_heuristic(resolver):
-    result = resolver.resolve("eerie black", FakeDatabase())
+    result = resolver.resolve("eerie black")
     assert isinstance(result, ResolutionError)
     assert result.reason == ERROR_UNSUPPORTED
 
 
 def test_excluded_hex_color(resolver):
-    result = resolver.resolve("#808080", FakeDatabase())
+    result = resolver.resolve("#808080")
     assert isinstance(result, ResolutionError)
     assert result.reason == ERROR_UNSUPPORTED
 
 
 def test_random_empty_palette():
     empty_resolver = ColorResolver(
-        get_palette_names_fn=lambda _db: [],
-        get_rgb_fn=lambda name: None,
+        palette_repo=_EmptyPalette(),
+        display_repo=FakeDisplay(),
         random_choice_fn=lambda choices: choices[0],
     )
-    result = empty_resolver.resolve("random", FakeDatabase())
+    result = empty_resolver.resolve("random")
     assert result == SpecialCommand(COMMAND_RANDOM_EMPTY, "random")
 
 
 def test_cycle_unavailable():
     failing_resolver = ColorResolver(
-        get_palette_names_fn=lambda _db: list(PALETTE),
-        get_rgb_fn=lambda name: RGB.get(name),
-        advance_cycle_fn=lambda: (_ for _ in ()).throw(ValueError("empty")),
+        palette_repo=FakePalette(),
+        display_repo=_FailingDisplay(),
     )
-    result = failing_resolver.resolve("cycle", FakeDatabase())
+    result = failing_resolver.resolve("cycle")
     assert result == SpecialCommand(COMMAND_CYCLE_UNAVAILABLE, "cycle")
+
+
+class _EmptyPalette(FakePalette):
+    def list_names(self):
+        return []
+
+
+class _FailingDisplay:
+    def advance_cycle(self):
+        raise ValueError("empty")

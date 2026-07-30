@@ -5,22 +5,23 @@ import time
 from twilio.twiml.messaging_response import MessagingResponse
 from flask import Flask, request, jsonify
 
-from config import configure_logging, data_file_path, get_redis
+from config import configure_logging, data_file_path
 from data_writer import mostRecentColors, numOfEachColor, invalidColors
 from handle_sms import SmsRequestHandler, handle_sms_request
 from health_check import check_hue, check_redis
 from hue_controller import HueController
+from webhook_repository import WebhookRepository
 
 configure_logging()
 
 app = Flask(__name__)
 controller = HueController()
 sms_handler = SmsRequestHandler(controller=controller)
+webhook_repo = WebhookRepository()
 file = data_file_path()
-LAST_WEBHOOK_KEY = "webhook:last"
 
 
-def record_incoming_webhook(database, body, from_num):
+def record_incoming_webhook(body, from_num):
     payload = {
         "timestamp": time.time(),
         "method": request.method,
@@ -29,7 +30,7 @@ def record_incoming_webhook(database, body, from_num):
         "body": body,
         "remote_addr": request.remote_addr,
     }
-    database.set(LAST_WEBHOOK_KEY, json.dumps(payload))
+    webhook_repo.record(payload)
     logging.info(
         "Incoming webhook %s %s from=%s body=%r remote=%s",
         request.method,
@@ -38,15 +39,6 @@ def record_incoming_webhook(database, body, from_num):
         body,
         request.remote_addr,
     )
-
-
-def get_last_webhook(database):
-    raw = database.get(LAST_WEBHOOK_KEY)
-    if raw is None:
-        return None
-    if isinstance(raw, bytes):
-        raw = raw.decode("utf-8")
-    return json.loads(raw)
 
 
 def twiml_response(message):
@@ -58,21 +50,19 @@ def twiml_response(message):
 @app.route("/", methods=["POST", "GET"])
 @app.route("/sms", methods=["POST", "GET"])
 def set_color():
-    database = get_redis()
     phone_number = request.values.get("From", None)
     body = request.values.get("Body", "") or ""
-    record_incoming_webhook(database, body, phone_number)
+    record_incoming_webhook(body, phone_number)
     message = handle_sms_request(body, phone_number, handler=sms_handler)
     return twiml_response(message)
 
 
 @app.route("/health", methods=["GET"])
 def health():
-    database = get_redis()
     status = {
         "redis": check_redis(),
         "hue": check_hue(controller),
-        "last_webhook": get_last_webhook(database),
+        "last_webhook": webhook_repo.get_last(),
     }
     status["ok"] = status["redis"] and status["hue"]
     code = 200 if status["ok"] else 503

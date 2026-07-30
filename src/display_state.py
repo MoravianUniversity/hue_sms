@@ -1,14 +1,9 @@
-import json
 import re
 import time
 
-from config import get_redis
-from hue_color import is_excluded_palette_color
+from display_repository import DISPLAY_CHANNEL, DisplayRepository
+from stats_repository import StatsRepository
 
-DISPLAY_STATE_KEY = "display:state"
-DISPLAY_CHANNEL = "display:updates"
-CYCLE_INDEX_KEY = "display:cycle_index"
-RECENT_PICKS_KEY = "display:recent_picks"
 RECENT_PICKS_LIMIT = 8
 UNSUPPORTED_NAME_PATTERN = re.compile(
     r"\b(black|gray|grey|silver|charcoal|onyx|eerie|smoke|granite|"
@@ -17,6 +12,23 @@ UNSUPPORTED_NAME_PATTERN = re.compile(
     r"fuzzy wuzzy|desert sand|raw sienna|burnt sienna|van dyke)\b",
     re.IGNORECASE,
 )
+
+_default_display_repo = None
+_default_stats_repo = None
+
+
+def _display_repo():
+    global _default_display_repo
+    if _default_display_repo is None:
+        _default_display_repo = DisplayRepository()
+    return _default_display_repo
+
+
+def _stats_repo():
+    global _default_stats_repo
+    if _default_stats_repo is None:
+        _default_stats_repo = StatsRepository()
+    return _default_stats_repo
 
 
 def rgb_string_to_hex(rgb_values):
@@ -67,113 +79,21 @@ def publish_unsupported_color(color_name, subtitle=None):
     publish_state(build_unsupported_state(color_name, subtitle=subtitle))
 
 
-def _format_ago(timestamp):
-    seconds = time.time() - float(timestamp)
-    if seconds < 60:
-        return "just now"
-    if seconds < 3600:
-        return "{}m ago".format(int(seconds // 60))
-    if seconds < 86400:
-        return "{}h ago".format(int(seconds // 3600))
-    return "{}d ago".format(int(seconds // 86400))
-
-
-def record_recent_pick(state):
-    pick = {
-        "color": state["color_name"],
-        "key": state.get("color_key", state["color_name"].lower()),
-        "rgb": state["rgb"],
-        "hex": state.get("hex"),
-        "timestamp": state["timestamp"],
-    }
-    r = get_redis()
-    r.lpush(RECENT_PICKS_KEY, json.dumps(pick))
-    r.ltrim(RECENT_PICKS_KEY, 0, RECENT_PICKS_LIMIT - 1)
-
-
-def get_recent_picks(csv_fallback=None):
-    r = get_redis()
-    if csv_fallback and r.llen(RECENT_PICKS_KEY) == 0:
-        _hydrate_recent_from_csv(csv_fallback)
-
-    picks = []
-    for raw in r.lrange(RECENT_PICKS_KEY, 0, RECENT_PICKS_LIMIT - 1):
-        pick = json.loads(raw)
-        pick["ago"] = _format_ago(pick["timestamp"])
-        picks.append(pick)
-    return picks
-
-
-def _hydrate_recent_from_csv(csv_path):
-    from data_writer import recent_picks as picks_from_csv
-
-    rows = list(reversed(picks_from_csv(csv_path, RECENT_PICKS_LIMIT)))
-    if not rows:
-        return
-    r = get_redis()
-    for row in rows:
-        pick = {
-            "color": row["color"],
-            "key": row["key"],
-            "rgb": row.get("rgb", [15, 15, 26]),
-            "hex": None,
-            "timestamp": time.time(),
-        }
-        if pick["rgb"]:
-            pick["hex"] = rgb_string_to_hex("{},{},{}".format(*pick["rgb"]))
-        r.rpush(RECENT_PICKS_KEY, json.dumps(pick))
-
-
 def publish_state(state):
-    r = get_redis()
-    if state.get("mode") == "spotlight":
-        record_recent_pick(state)
-    payload = json.dumps(state)
-    r.set(DISPLAY_STATE_KEY, payload)
-    r.publish(DISPLAY_CHANNEL, payload)
+    _display_repo().publish(state)
 
 
 def get_display_state():
-    r = get_redis()
-    payload = r.get(DISPLAY_STATE_KEY)
-    if payload is None:
-        return None
-    return json.loads(payload)
+    return _display_repo().get_state()
+
+
+def get_recent_picks(csv_fallback=None):
+    return _display_repo().get_recent_picks(csv_fallback=csv_fallback)
 
 
 def get_total_choices():
-    r = get_redis(decode_responses=False)
-    total = r.get("total")
-    if total is None:
-        return 0
-    return int(total.decode("utf-8"))
+    return _stats_repo().total_choices()
 
 
 def advance_cycle_color():
-    """Return the next color for the SMS 'next' command and advance the index."""
-    names = _palette_color_names()
-    if not names:
-        raise ValueError("No colors available in Redis")
-    r = get_redis()
-    idx = int(r.get(CYCLE_INDEX_KEY) or 0)
-    color_name = names[idx % len(names)]
-    r.set(CYCLE_INDEX_KEY, (idx + 1) % len(names))
-    return color_name
-
-
-def _palette_color_names():
-    r = get_redis()
-    return sorted(
-        key for key in r.hkeys("colors")
-        if key not in ("random", "black") and not _is_excluded_redis_color(r, key)
-    )
-
-
-def _is_excluded_redis_color(r, key):
-    rgb = r.hget("colors", key)
-    if rgb is None:
-        return True
-    if isinstance(rgb, bytes):
-        rgb = rgb.decode("utf-8")
-    red, green, blue = (int(v) for v in rgb.split(","))
-    return is_excluded_palette_color(red, green, blue)
+    return _display_repo().advance_cycle()

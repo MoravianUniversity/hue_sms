@@ -1,8 +1,7 @@
-from config import get_redis
-from name_converter import clean_name
+from palette_repository import PaletteRepository
+
+_palette = PaletteRepository()
 
 
 def getColor(colorName):
-    r = get_redis()
-    value = r.hget("colors", clean_name(str(colorName)))
-    return value
+    return _palette.get_rgb(colorName)

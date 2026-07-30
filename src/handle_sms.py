@@ -17,25 +17,19 @@ from color_resolver import (
     MATCH_HEX,
     MATCH_RANDOM,
     ResolutionError,
-    ResolvedColor,
     SpecialCommand,
 )
-from config import data_file_path, get_redis
-from data_writer import color_percent, first_entry_date, writeFile
+from config import data_file_path
+from data_writer import first_entry_date, writeFile
 from display_state import build_state, publish_state, publish_unsupported_color
 from hue_controller import HueController
 from name_converter import clean_name
+from stats_repository import StatsRepository
 
 UNSUPPORTED_COLOR_MESSAGE = (
     "That color can't be shown on the light — blacks, grays, browns, and similar "
     "muted colors don't work well. Try something brighter!"
 )
-
-
-def increment_color_usage(database, color_name):
-    if database.hexists("color_totals", color_name):
-        database.hincrby("color_totals", color_name, 1)
-        database.incr("total", 1)
 
 
 def publish_color_to_display(color_name, rgb_values, subtitle=None):
@@ -119,17 +113,16 @@ class SmsRequestHandler:
         self,
         controller=None,
         resolver=None,
+        stats_repo=None,
         event_log_path=None,
-        get_database_fn=None,
     ):
         self.controller = controller or HueController()
         self.resolver = resolver or ColorResolver()
+        self.stats = stats_repo or StatsRepository()
         self.event_log_path = event_log_path or data_file_path()
-        self._get_database = get_database_fn or get_redis
 
     def handle(self, body, from_number=None):
-        database = self._get_database()
-        result = self.resolver.resolve(body or "", database)
+        result = self.resolver.resolve(body or "")
 
         if isinstance(result, SpecialCommand):
             return message_for_special_command(result)
@@ -143,11 +136,11 @@ class SmsRequestHandler:
         if isinstance(result, ResolutionError):
             return message_for_resolution_error(result)
 
-        return self._apply_color(result, from_number, database)
+        return self._apply_color(result, from_number)
 
-    def _apply_color(self, resolved, from_number, database):
+    def _apply_color(self, resolved, from_number):
         if resolved.increment_stats:
-            increment_color_usage(database, resolved.stat_key)
+            self.stats.increment(resolved.stat_key)
 
         try:
             self.controller.set_rgb(resolved.rgb)
@@ -171,7 +164,7 @@ class SmsRequestHandler:
         if resolved.match_kind == MATCH_HEX:
             return message
 
-        percent = color_percent(resolved.stat_key)
+        percent = self.stats.percent(resolved.stat_key)
         date = first_entry_date(self.event_log_path)
         logging.info(
             "Color %s has been set by the phone number %s.",

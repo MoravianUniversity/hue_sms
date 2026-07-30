@@ -1,3 +1,4 @@
+from display_repository import DisplayRepository
 from display_state import (
     advance_cycle_color,
     build_state,
@@ -60,9 +61,16 @@ class FakeRedis:
         return items[start:end + 1]
 
 
+def _patch_display_repo(monkeypatch, fake):
+    monkeypatch.setattr(
+        "display_state._default_display_repo",
+        DisplayRepository(fake),
+    )
+
+
 def test_advance_cycle_color_rotates(monkeypatch):
     fake = FakeRedis()
-    monkeypatch.setattr("display_state.get_redis", lambda decode_responses=True: fake)
+    _patch_display_repo(monkeypatch, fake)
 
     first = advance_cycle_color()
     second = advance_cycle_color()
@@ -90,7 +98,7 @@ def test_is_likely_unsupported_color_name():
 
 def test_spotlight_records_recent_pick(monkeypatch):
     fake = FakeRedis()
-    monkeypatch.setattr("display_state.get_redis", lambda decode_responses=True: fake)
+    _patch_display_repo(monkeypatch, fake)
 
     publish_state(build_state("sky blue", "118,215,234", mode="spotlight"))
     picks = get_recent_picks()
@@ -102,7 +110,7 @@ def test_spotlight_records_recent_pick(monkeypatch):
 
 def test_unsupported_state_is_not_recorded_as_recent(monkeypatch):
     fake = FakeRedis()
-    monkeypatch.setattr("display_state.get_redis", lambda decode_responses=True: fake)
+    _patch_display_repo(monkeypatch, fake)
 
     publish_unsupported_color("gray")
     picks = get_recent_picks()

@@ -1,10 +1,10 @@
 import os
 
-from config import get_redis
 import redis
 
 from hue_color import is_excluded_palette_color
 from name_converter import clean_name
+from palette_repository import PaletteRepository
 
 COLORS_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -47,8 +47,7 @@ def load_palette_from_csv():
 
 def load_palette():
     try:
-        r = get_redis(decode_responses=True)
-        colors = r.hgetall("colors")
+        colors = PaletteRepository().all_colors()
         if colors:
             palette = []
             for name, rgb in colors.items():

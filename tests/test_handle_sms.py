@@ -30,19 +30,19 @@ class FakeController:
         self.last_rgb = rgb_values
 
 
-class FakeDatabase:
+class FakeStats:
     def __init__(self):
         self.counts = {}
         self.total = 0
 
-    def hexists(self, name, key):
-        return name == "color_totals"
+    def increment(self, color_name):
+        self.counts[color_name] = self.counts.get(color_name, 0) + 1
+        self.total += 1
 
-    def hincrby(self, name, key, amount):
-        self.counts[key] = self.counts.get(key, 0) + amount
-
-    def incr(self, key, amount=1):
-        self.total += amount
+    def percent(self, color_name):
+        if self.total == 0:
+            return 0.0
+        return (self.counts.get(color_name, 0) / self.total) * 100
 
 
 @pytest.fixture
@@ -63,7 +63,7 @@ def test_special_command_does_not_touch_controller():
     handler = SmsRequestHandler(
         controller=controller,
         resolver=_resolver_returning(SpecialCommand(COMMAND_EMPTY, "")),
-        get_database_fn=lambda: FakeDatabase(),
+        stats_repo=FakeStats(),
     )
 
     message = handler.handle("", "+15551234567")
@@ -80,7 +80,7 @@ def test_resolution_error_does_not_set_bulb():
         resolver=_resolver_returning(
             ResolutionError("unknown", "notacolor", "notacolor")
         ),
-        get_database_fn=lambda: FakeDatabase(),
+        stats_repo=FakeStats(),
     )
 
     message = handler.handle("notacolor", "+15551234567")
@@ -94,10 +94,9 @@ def test_successful_color_sets_bulb_and_returns_stats(
     resolved_sky_blue, monkeypatch, tmp_path
 ):
     controller = FakeController()
-    database = FakeDatabase()
+    stats = FakeStats()
     log_file = tmp_path / "data.csv"
 
-    monkeypatch.setattr("handle_sms.color_percent", lambda _key: 12.5)
     monkeypatch.setattr("handle_sms.first_entry_date", lambda _path: "2024-01-01")
     monkeypatch.setattr("handle_sms.writeFile", lambda path, *args: None)
     monkeypatch.setattr(
@@ -107,22 +106,21 @@ def test_successful_color_sets_bulb_and_returns_stats(
     handler = SmsRequestHandler(
         controller=controller,
         resolver=_resolver_returning(resolved_sky_blue),
+        stats_repo=stats,
         event_log_path=str(log_file),
-        get_database_fn=lambda: database,
     )
 
     message = handler.handle("sky blue", "+15551234567")
 
     assert controller.last_rgb == "118,215,234"
     assert "sky blue" in message
-    assert "12.5" in message
-    assert database.counts["sky blue"] == 1
-    assert database.total == 1
+    assert "100.0" in message
+    assert stats.counts["sky blue"] == 1
 
 
 def test_hex_color_skips_stats_suffix(monkeypatch):
     controller = FakeController()
-    database = FakeDatabase()
+    stats = FakeStats()
     hex_color = ResolvedColor(
         color_key="ff2a45",
         display_name="#FF2A45",
@@ -141,7 +139,7 @@ def test_hex_color_skips_stats_suffix(monkeypatch):
     handler = SmsRequestHandler(
         controller=controller,
         resolver=_resolver_returning(hex_color),
-        get_database_fn=lambda: database,
+        stats_repo=stats,
     )
 
     message = handler.handle("#FF2A45", "+15551234567")
@@ -149,8 +147,7 @@ def test_hex_color_skips_stats_suffix(monkeypatch):
     assert controller.last_rgb == "255,42,69"
     assert "Hex" in message
     assert "% of the time" not in message
-    assert database.counts == {}
-    assert database.total == 0
+    assert stats.counts == {}
 
 
 def test_hue_connect_failure(resolved_sky_blue):
@@ -158,7 +155,7 @@ def test_hue_connect_failure(resolved_sky_blue):
     handler = SmsRequestHandler(
         controller=controller,
         resolver=_resolver_returning(resolved_sky_blue),
-        get_database_fn=lambda: FakeDatabase(),
+        stats_repo=FakeStats(),
     )
 
     message = handler.handle("sky blue", "+15551234567")
@@ -173,18 +170,18 @@ def test_hue_set_failure(resolved_sky_blue, monkeypatch):
     )
 
     controller = FakeController(set_raises=True)
-    database = FakeDatabase()
+    stats = FakeStats()
     handler = SmsRequestHandler(
         controller=controller,
         resolver=_resolver_returning(resolved_sky_blue),
-        get_database_fn=lambda: database,
+        stats_repo=stats,
     )
 
     message = handler.handle("sky blue", "+15551234567")
 
     assert "cannot connect to the Hue Light" in message
     assert controller.last_rgb is None
-    assert database.counts["sky blue"] == 1
+    assert stats.counts["sky blue"] == 1
 
 
 def test_message_for_empty_command():
@@ -195,7 +192,7 @@ def test_message_for_empty_command():
 
 def _resolver_returning(result):
     class StubResolver:
-        def resolve(self, body, database):
+        def resolve(self, body):
             return result
 
     return StubResolver()

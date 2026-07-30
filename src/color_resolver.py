@@ -5,11 +5,11 @@ from dataclasses import dataclass
 
 from PIL import ImageColor
 
-from display_state import advance_cycle_color, is_likely_unsupported_color_name
-from fuzzyColors import getFuzzyColor
-from getRedisColor import getColor
+from display_state import is_likely_unsupported_color_name
+from display_repository import DisplayRepository
 from hue_color import is_excluded_palette_color, parse_rgb_values
 from name_converter import clean_name
+from palette_repository import PaletteRepository
 
 MATCH_EXACT = "exact"
 MATCH_FUZZY = "fuzzy"
@@ -66,32 +66,18 @@ def hex_to_rgb(hexcode_color):
         return None
 
 
-def get_palette_names(database):
-    names = []
-    for color in database.hkeys("colors"):
-        if isinstance(color, bytes):
-            color = color.decode("utf-8")
-        if color not in ("random", "black"):
-            names.append(color)
-    return names
-
-
 class ColorResolver:
     def __init__(
         self,
-        get_palette_names_fn=None,
-        get_rgb_fn=None,
-        fuzzy_match_fn=None,
-        advance_cycle_fn=None,
+        palette_repo=None,
+        display_repo=None,
         random_choice_fn=None,
     ):
-        self._get_palette_names = get_palette_names_fn or get_palette_names
-        self._get_rgb = get_rgb_fn or getColor
-        self._fuzzy_match = fuzzy_match_fn or getFuzzyColor
-        self._advance_cycle = advance_cycle_fn or advance_cycle_color
+        self.palette = palette_repo or PaletteRepository()
+        self.display = display_repo or DisplayRepository()
         self._random_choice = random_choice_fn or random.choice
 
-    def resolve(self, raw_input, database):
+    def resolve(self, raw_input):
         raw_input = raw_input or ""
         is_hex = raw_input.startswith("#")
         color_name = clean_name(raw_input)
@@ -108,12 +94,12 @@ class ColorResolver:
         if color_name == "colors list":
             return SpecialCommand(COMMAND_COLORS_LIST, raw_input)
 
-        palette_names = self._get_palette_names(database)
+        palette_names = self.palette.list_names()
         match_kind = MATCH_EXACT
 
         if color_name in ("next", "cycle"):
             try:
-                color_name = self._advance_cycle()
+                color_name = self.display.advance_cycle()
             except ValueError:
                 return SpecialCommand(COMMAND_CYCLE_UNAVAILABLE, raw_input)
             match_kind = MATCH_CYCLE
@@ -124,7 +110,7 @@ class ColorResolver:
             color_name = self._random_choice(pickable)
             match_kind = MATCH_RANDOM
         elif color_name not in palette_names:
-            fuzzy_match = self._fuzzy_match(color_name)
+            fuzzy_match = self.palette.fuzzy_match(color_name)
             if fuzzy_match is not None:
                 color_name = clean_name(fuzzy_match)
                 match_kind = MATCH_FUZZY
@@ -133,7 +119,7 @@ class ColorResolver:
             rgb_values = hex_to_rgb(raw_input)
             match_kind = MATCH_HEX
         else:
-            rgb_values = self._get_rgb(color_name)
+            rgb_values = self.palette.get_rgb(color_name)
 
         if rgb_values is None:
             reason = (

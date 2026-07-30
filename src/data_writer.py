@@ -2,10 +2,13 @@ import datetime
 import csv
 from collections import deque
 
-from config import data_file_path, get_redis
-from getRedisColor import getColor
+from config import data_file_path
+from palette_repository import PaletteRepository
+from stats_repository import StatsRepository
 
 DATA_FILE = data_file_path()
+_palette = PaletteRepository()
+_stats = StatsRepository()
 
 
 def writeFile(file, number, color, response):
@@ -53,7 +56,7 @@ def recent_picks(file=DATA_FILE, limit=8):
             "key": color_key,
             "ago": _format_ago(timestamp),
         }
-        rgb = getColor(color_key)
+        rgb = _palette.get_rgb(color_key)
         if rgb:
             parts = [int(v) for v in rgb.split(",")]
             pick["rgb"] = parts
@@ -80,7 +83,7 @@ def numOfEachColor(file):
             data_reader = csv.reader(data)
             for row in data_reader:
                 key = row[2]
-                if getColor(key) is not None:
+                if _palette.get_rgb(key) is not None:
                     if key in colorsDict:
                         colorsDict[key] += 1
                     else:
@@ -95,7 +98,7 @@ def invalidColors(file):
         with open(file,'r') as data:
             data_reader = csv.reader(data)
             for row in data_reader:
-                if getColor(row[2]) is None:
+                if _palette.get_rgb(row[2]) is None:
                     invalidList.append(row[2])
         return invalidList
 
@@ -104,27 +107,7 @@ def invalidColors(file):
 
 
 def color_percent(color):
-    r = get_redis()
-    color = color.lower()
-
-    color_raw = r.hget('color_totals', color)
-    total_raw = r.get('total')
-    if color_raw is None or total_raw is None:
-        return 0.0
-
-    if isinstance(color_raw, bytes):
-        color_raw = color_raw.decode('utf-8')
-    if isinstance(total_raw, bytes):
-        total_raw = total_raw.decode('utf-8')
-
-    color_total = float(color_raw)
-    total = float(total_raw)
-    if total == 0:
-        return 0.0
-
-    percent = (color_total / total) * 100
-
-    return percent
+    return _stats.percent(color)
 
 def first_entry_date(file):
     try:
