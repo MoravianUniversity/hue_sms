@@ -45,6 +45,17 @@ class FakeStats:
         return (self.counts.get(color_name, 0) / self.total) * 100
 
 
+class FakeEvents:
+    def __init__(self):
+        self.entries = []
+
+    def append(self, from_number, color_key, message):
+        self.entries.append((from_number, color_key, message))
+
+    def first_event_date(self):
+        return "2024-01-01"
+
+
 @pytest.fixture
 def resolved_sky_blue():
     return ResolvedColor(
@@ -64,6 +75,7 @@ def test_special_command_does_not_touch_controller():
         controller=controller,
         resolver=_resolver_returning(SpecialCommand(COMMAND_EMPTY, "")),
         stats_repo=FakeStats(),
+        events_repo=FakeEvents(),
     )
 
     message = handler.handle("", "+15551234567")
@@ -81,6 +93,7 @@ def test_resolution_error_does_not_set_bulb():
             ResolutionError("unknown", "notacolor", "notacolor")
         ),
         stats_repo=FakeStats(),
+        events_repo=FakeEvents(),
     )
 
     message = handler.handle("notacolor", "+15551234567")
@@ -95,18 +108,20 @@ def test_successful_color_sets_bulb_and_returns_stats(
 ):
     controller = FakeController()
     stats = FakeStats()
+    events = FakeEvents()
     log_file = tmp_path / "data.csv"
 
-    monkeypatch.setattr("handle_sms.first_entry_date", lambda _path: "2024-01-01")
     monkeypatch.setattr("handle_sms.writeFile", lambda path, *args: None)
     monkeypatch.setattr(
         "handle_sms.publish_color_to_display", lambda *args, **kwargs: None
     )
+    monkeypatch.setattr("handle_sms.csv_event_export_enabled", lambda: False)
 
     handler = SmsRequestHandler(
         controller=controller,
         resolver=_resolver_returning(resolved_sky_blue),
         stats_repo=stats,
+        events_repo=events,
         event_log_path=str(log_file),
     )
 
@@ -116,11 +131,13 @@ def test_successful_color_sets_bulb_and_returns_stats(
     assert "sky blue" in message
     assert "100.0" in message
     assert stats.counts["sky blue"] == 1
+    assert len(events.entries) == 1
 
 
 def test_hex_color_skips_stats_suffix(monkeypatch):
     controller = FakeController()
     stats = FakeStats()
+    events = FakeEvents()
     hex_color = ResolvedColor(
         color_key="ff2a45",
         display_name="#FF2A45",
@@ -135,11 +152,13 @@ def test_hex_color_skips_stats_suffix(monkeypatch):
     monkeypatch.setattr(
         "handle_sms.publish_color_to_display", lambda *args, **kwargs: None
     )
+    monkeypatch.setattr("handle_sms.csv_event_export_enabled", lambda: False)
 
     handler = SmsRequestHandler(
         controller=controller,
         resolver=_resolver_returning(hex_color),
         stats_repo=stats,
+        events_repo=events,
     )
 
     message = handler.handle("#FF2A45", "+15551234567")
@@ -148,6 +167,7 @@ def test_hex_color_skips_stats_suffix(monkeypatch):
     assert "Hex" in message
     assert "% of the time" not in message
     assert stats.counts == {}
+    assert len(events.entries) == 1
 
 
 def test_hue_connect_failure(resolved_sky_blue):
@@ -156,6 +176,7 @@ def test_hue_connect_failure(resolved_sky_blue):
         controller=controller,
         resolver=_resolver_returning(resolved_sky_blue),
         stats_repo=FakeStats(),
+        events_repo=FakeEvents(),
     )
 
     message = handler.handle("sky blue", "+15551234567")
@@ -168,13 +189,16 @@ def test_hue_set_failure(resolved_sky_blue, monkeypatch):
     monkeypatch.setattr(
         "handle_sms.publish_color_to_display", lambda *args, **kwargs: None
     )
+    monkeypatch.setattr("handle_sms.csv_event_export_enabled", lambda: False)
 
     controller = FakeController(set_raises=True)
     stats = FakeStats()
+    events = FakeEvents()
     handler = SmsRequestHandler(
         controller=controller,
         resolver=_resolver_returning(resolved_sky_blue),
         stats_repo=stats,
+        events_repo=events,
     )
 
     message = handler.handle("sky blue", "+15551234567")
@@ -182,6 +206,7 @@ def test_hue_set_failure(resolved_sky_blue, monkeypatch):
     assert "cannot connect to the Hue Light" in message
     assert controller.last_rgb is None
     assert stats.counts["sky blue"] == 1
+    assert events.entries == []
 
 
 def test_message_for_empty_command():

@@ -9,7 +9,6 @@ from flask import Flask, Response, jsonify, render_template, send_file
 from config import (
     DEFAULT_HUE_HEALTH_URL,
     DEFAULT_SMS_PHONE,
-    data_file_path,
     get_redis,
     settings,
 )
@@ -19,7 +18,6 @@ from palette import load_palette
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__, template_folder=os.path.join(BASE_DIR, "templates"))
-DATA_FILE = data_file_path()
 
 
 def _phone_digits(phone):
@@ -39,7 +37,7 @@ def enrich_state(state, include_recent=False):
     state = dict(state)
     state["total_choices"] = get_total_choices()
     if include_recent or state.get("mode") == "spotlight":
-        state["recent"] = get_recent_picks(DATA_FILE)
+        state["recent"] = get_recent_picks()
     return state
 
 
@@ -61,7 +59,7 @@ def api_stats():
 
 @app.route("/api/recent")
 def api_recent():
-    return jsonify({"recent": get_recent_picks(DATA_FILE)})
+    return jsonify({"recent": get_recent_picks()})
 
 
 @app.route("/api/health")

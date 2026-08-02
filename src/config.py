@@ -46,8 +46,11 @@ def configure_logging():
     )
 
 
+def csv_event_export_enabled():
+    return bool(getattr(settings, "csv_event_export", False))
+
+
 def data_file_path():
-    """Path to the CSV event log (defaults to src/data.csv)."""
     configured = getattr(settings, "event_log_path", None) or getattr(
         settings, "data_file", None
     )

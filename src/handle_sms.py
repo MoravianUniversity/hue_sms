@@ -19,9 +19,10 @@ from color_resolver import (
     ResolutionError,
     SpecialCommand,
 )
-from config import data_file_path
-from data_writer import first_entry_date, writeFile
+from config import csv_event_export_enabled, data_file_path
+from data_writer import writeFile
 from display_state import build_state, publish_state, publish_unsupported_color
+from event_repository import EventRepository
 from hue_controller import HueController
 from name_converter import clean_name
 from stats_repository import StatsRepository
@@ -114,11 +115,13 @@ class SmsRequestHandler:
         controller=None,
         resolver=None,
         stats_repo=None,
+        events_repo=None,
         event_log_path=None,
     ):
         self.controller = controller or HueController()
         self.resolver = resolver or ColorResolver()
         self.stats = stats_repo or StatsRepository()
+        self.events = events_repo or EventRepository()
         self.event_log_path = event_log_path or data_file_path()
 
     def handle(self, body, from_number=None):
@@ -154,18 +157,20 @@ class SmsRequestHandler:
             logging.exception("Unexpected error while changing light color")
             return "Something went wrong changing the light. Please try again."
 
-        writeFile(
-            self.event_log_path,
-            str(from_number),
-            str(resolved.stat_key),
-            str(message),
-        )
+        self.events.append(str(from_number), str(resolved.stat_key), str(message))
+        if csv_event_export_enabled():
+            writeFile(
+                self.event_log_path,
+                str(from_number),
+                str(resolved.stat_key),
+                str(message),
+            )
 
         if resolved.match_kind == MATCH_HEX:
             return message
 
         percent = self.stats.percent(resolved.stat_key)
-        date = first_entry_date(self.event_log_path)
+        date = self.events.first_event_date()
         logging.info(
             "Color %s has been set by the phone number %s.",
             resolved.stat_key,

@@ -8,45 +8,32 @@ from datetime import datetime
 import plotly.graph_objects as go
 from PIL import Image
 
-from config import data_file_path, get_redis
+from config import get_redis
+from event_repository import EventRepository
+from stats_repository import StatsRepository
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 r = get_redis()
+events_repo = EventRepository()
 
 
-def get_responsesDict(filename):
-    responsesDict = {'Time': [], 'Last 4 Digits': [], 'Color': []}
-    # gets last 10 messages from data.csv
-    with open(filename) as file:
-        file_contents = file.readlines()
-        last_10SMS = file_contents[-10:]
-        last_10SMS = [message.strip() for message in last_10SMS]
-        last_10SMS.reverse()
-
-        for message in last_10SMS:
-            message = message.split(',')
-            message = [component.strip('"') for component in message]
-            time, phone_number, color_choice = message[0], message[1], message[2]
-            date, hr_of_day = time[:11], datetime.strptime(time[11:16], "%H:%M")
-
-            responsesDict['Time'].append('' + date + hr_of_day.strftime("%I:%M %p"))
-            responsesDict['Last 4 Digits'].append('###-###-' + phone_number[-4:])
-            responsesDict['Color'].append(color_choice.title())
-
-    return responsesDict
+def get_responses_dict():
+    return events_repo.responses_table_rows(limit=10)
 
 
-def decode_redis(filename):
-    color_byte_dict = r.hgetall(filename)
-    color_dict = {}
-    for key in color_byte_dict:
-        value = color_byte_dict[key].decode('utf-8')
-        key = key.decode('utf-8').title()
-        color_dict[key] = value
-    return color_dict
+def decode_redis(hash_name):
+    color_dict = r.hgetall(hash_name)
+    decoded = {}
+    for key, value in color_dict.items():
+        if isinstance(key, bytes):
+            key = key.decode("utf-8")
+        if isinstance(value, bytes):
+            value = value.decode("utf-8")
+        decoded[key.title()] = value
+    return decoded
 
 
 def setup():
@@ -70,7 +57,7 @@ def setup():
             colors.append(key.title())
     fig = px.pie(names=labels, values=sizes, color=labels, color_discrete_map=color_RGB_dict, width=1200, height=600)
 
-    df = pd.DataFrame(get_responsesDict('data.csv'))
+    df = pd.DataFrame(get_responses_dict())
 
     layout = go.Layout(
         width=1000,
@@ -161,7 +148,7 @@ def update_graph_live(n):
 @app.callback(Output('SMS-responses', 'figure'),
               Input('table-interval', 'n_intervals'))
 def update_table_live(n):
-    df = pd.DataFrame(get_responsesDict('data.csv'))
+    df = pd.DataFrame(get_responses_dict())
     qr_image = Image.open("qr_code.jpg")
     table = go.Figure(data=[go.Table(
         header=dict(

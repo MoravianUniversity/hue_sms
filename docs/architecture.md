@@ -367,7 +367,7 @@ Work in small PRs. Each step should leave the project runnable and tests passing
 | **2 — Resolver** | Extract color resolution from `hue_flask.py`; add tests | Low — **done** (`src/color_resolver.py`) |
 | **3 — Service** | Extract `handle_color_request`; thin Flask route | Medium — **done** (`src/handle_sms.py`) |
 | **4 — Repositories** | Replace `getRedisColor`, inline Redis in fuzzy/stats | Medium — **done** (`*_repository.py`) |
-| **5 — History** | Unify event/recent data in Redis; deprecate CSV fallback | Medium |
+| **5 — History** | Unify event/recent data in Redis; deprecate CSV fallback | Medium — **done** (`event_repository.py`) |
 | **6 — Package move** | `src/hue_sms/` layout; update imports and docs | Medium |
 | **7 — Cleanup** | Remove dead code, rename scripts, delete duplicates | Low |
 
@@ -381,7 +381,7 @@ Record choices here as the team reviews the design:
 
 | Question | Options | Decision |
 |----------|---------|----------|
-| Event log primary store | Redis list vs Redis stream vs keep CSV | **Defer to Phase 5** — keep CSV for now |
+| Event log primary store | Redis list vs Redis stream vs keep CSV | **Redis list** (`events:log`); optional `csv_event_export = true` in settings |
 | Package rename timing | Before or after service extraction | **After** — extract logic first (Phases 2–4), move folders in Phase 6 |
 | `Rgb` value type | Keep `"r,g,b"` strings vs small dataclass | **Keep strings for now** — less churn while refactoring |
 | Single Flask app vs two | Keep SMS (:5000) and kiosk (:8000) separate | **Keep separate** — different deploy/scaling |

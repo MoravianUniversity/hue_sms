@@ -1,4 +1,3 @@
-import json
 import logging
 import time
 
@@ -6,10 +5,11 @@ from twilio.twiml.messaging_response import MessagingResponse
 from flask import Flask, request, jsonify
 
 from config import configure_logging, data_file_path
-from data_writer import mostRecentColors, numOfEachColor, invalidColors
+from event_repository import EventRepository
 from handle_sms import SmsRequestHandler, handle_sms_request
 from health_check import check_hue, check_redis
 from hue_controller import HueController
+from stats_repository import StatsRepository
 from webhook_repository import WebhookRepository
 
 configure_logging()
@@ -18,6 +18,8 @@ app = Flask(__name__)
 controller = HueController()
 sms_handler = SmsRequestHandler(controller=controller)
 webhook_repo = WebhookRepository()
+events_repo = EventRepository()
+stats_repo = StatsRepository()
 file = data_file_path()
 
 
@@ -71,17 +73,17 @@ def health():
 
 @app.route("/recents", methods=["GET"])
 def get_most_recent():
-    return mostRecentColors(file)
+    return jsonify(events_repo.recent_color_names(limit=5))
 
 
 @app.route("/number", methods=["GET"])
 def get_num_of_each():
-    return numOfEachColor(file)
+    return jsonify(stats_repo.color_counts())
 
 
 @app.route("/invalids", methods=["GET"])
 def get_invalids():
-    return invalidColors(file)
+    return jsonify(events_repo.invalid_color_names())
 
 
 if __name__ == "__main__":

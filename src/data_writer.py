@@ -109,13 +109,8 @@ def invalidColors(file):
 def color_percent(color):
     return _stats.percent(color)
 
-def first_entry_date(file):
-    try:
-        with open(file,'r') as data:
-            data_reader = csv.reader(data)
-            rowOne = next(data_reader)
-            firstDate = rowOne[0]
-            return str(firstDate[0:10])
-    except FileNotFoundError:
-        return ""
+def first_entry_date(file=DATA_FILE):
+    from event_repository import EventRepository
+
+    return EventRepository().first_event_date()
 

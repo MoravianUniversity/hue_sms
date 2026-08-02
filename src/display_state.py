@@ -87,8 +87,8 @@ def get_display_state():
     return _display_repo().get_state()
 
 
-def get_recent_picks(csv_fallback=None):
-    return _display_repo().get_recent_picks(csv_fallback=csv_fallback)
+def get_recent_picks():
+    return _display_repo().get_recent_picks()
 
 
 def get_total_choices():

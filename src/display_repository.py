@@ -33,10 +33,7 @@ class DisplayRepository:
             payload = payload.decode("utf-8")
         return json.loads(payload)
 
-    def get_recent_picks(self, csv_fallback=None):
-        if csv_fallback and self.redis.llen(RECENT_PICKS_KEY) == 0:
-            self._hydrate_recent_from_csv(csv_fallback)
-
+    def get_recent_picks(self):
         picks = []
         for raw in self.redis.lrange(RECENT_PICKS_KEY, 0, RECENT_PICKS_LIMIT - 1):
             if isinstance(raw, bytes):
@@ -65,25 +62,6 @@ class DisplayRepository:
         }
         self.redis.lpush(RECENT_PICKS_KEY, json.dumps(pick))
         self.redis.ltrim(RECENT_PICKS_KEY, 0, RECENT_PICKS_LIMIT - 1)
-
-    def _hydrate_recent_from_csv(self, csv_path):
-        from data_writer import recent_picks as picks_from_csv
-        from display_state import rgb_string_to_hex
-
-        rows = list(reversed(picks_from_csv(csv_path, RECENT_PICKS_LIMIT)))
-        if not rows:
-            return
-        for row in rows:
-            pick = {
-                "color": row["color"],
-                "key": row["key"],
-                "rgb": row.get("rgb", [15, 15, 26]),
-                "hex": None,
-                "timestamp": time.time(),
-            }
-            if pick["rgb"]:
-                pick["hex"] = rgb_string_to_hex("{},{},{}".format(*pick["rgb"]))
-            self.redis.rpush(RECENT_PICKS_KEY, json.dumps(pick))
 
 
 def _format_ago(timestamp):

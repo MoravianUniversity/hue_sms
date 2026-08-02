@@ -36,7 +36,21 @@ class StatsRepository:
         return (color_total / total) * 100
 
     def total_choices(self):
-        raw = get_redis(decode_responses=False).get(TOTAL_KEY)
+        raw = self.redis.get(TOTAL_KEY)
         if raw is None:
             return 0
         return int(_decode(raw))
+
+    def color_counts(self, palette_repo=None):
+        """Return {color_key: count} for palette colors with count > 0."""
+        if palette_repo is None:
+            from palette_repository import PaletteRepository
+
+            palette_repo = PaletteRepository(self.redis)
+
+        counts = {}
+        for key, value in self.redis.hgetall(COLOR_TOTALS_KEY).items():
+            key = _decode(key)
+            if palette_repo.exists(key):
+                counts[key] = int(_decode(value))
+        return counts
