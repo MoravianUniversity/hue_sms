@@ -1,9 +1,9 @@
 
-from name_converter import NameConverter, clean_name
+from hue_sms.domain.name_converter import NameConverter, clean_name
 
-red = (237, 10, 63)
-red_orange = (255,104,31)
-robins_egg_blue = (0, 204, 204)
+red = (255, 54, 78)
+red_orange = (255, 112, 44)
+orange = (255, 140, 108)
 
 
 def test_clean_caps():
@@ -29,25 +29,25 @@ def test_exact_spelling():
     converter = NameConverter()
     assert red == converter.convert('Red')
     assert red_orange == converter.convert('Red-Orange')
-    assert robins_egg_blue == converter.convert("Robin's Egg Blue")
+    assert orange == converter.convert("Orange")
 
 
 def test_leading_and_trailing_space():
     converter = NameConverter()
     assert red == converter.convert('  Red  ')
     assert red_orange == converter.convert('\nRed-Orange\n')
-    assert robins_egg_blue == converter.convert("\t\tRobin's Egg Blue\t\t")
+    assert orange == converter.convert("\t\tOrange\t\t")
 
 
 def test_different_cases():
     converter = NameConverter()
     assert red == converter.convert('RED')
     assert red_orange == converter.convert('red-orange')
-    assert robins_egg_blue == converter.convert("RoBin'S Egg blue")
+    assert orange == converter.convert("oRaNgE")
 
 
 def test_punctuation():
     converter = NameConverter()
     assert red == converter.convert('Red.')
     assert red_orange == converter.convert('Red-Orange!')
-    assert robins_egg_blue == converter.convert("Robin's Egg Blue?")
+    assert orange == converter.convert("Orange?")

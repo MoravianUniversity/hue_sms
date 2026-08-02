@@ -1,5 +1,5 @@
-from display_repository import DisplayRepository
-from display_state import (
+from hue_sms.infrastructure.display_repository import DisplayRepository
+from hue_sms.infrastructure.display_state import (
     advance_cycle_color,
     build_state,
     build_unsupported_state,
@@ -63,7 +63,7 @@ class FakeRedis:
 
 def _patch_display_repo(monkeypatch, fake):
     monkeypatch.setattr(
-        "display_state._default_display_repo",
+        "hue_sms.infrastructure.display_state._default_display_repo",
         DisplayRepository(fake),
     )
 

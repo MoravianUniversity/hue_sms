@@ -1,6 +1,6 @@
 import csv,unittest,os
-from data_writer import writeFile,mostRecentColors,numOfEachColor,invalidColors
-from hue_controller import HueController
+from hue_sms.infrastructure.data_writer import writeFile,mostRecentColors,numOfEachColor,invalidColors
+from hue_sms.infrastructure.hue_controller import HueController
 
 controller = HueController()
 filename = "testdata.csv"

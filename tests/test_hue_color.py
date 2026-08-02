@@ -1,6 +1,6 @@
 import math
 
-from hue_color import adjust_rgb_for_hue, get_gamut, is_earth_tone, is_excluded_palette_color, is_neutral, parse_rgb_values, preview_rgb, rgb_to_hue
+from hue_sms.domain.hue_color import adjust_rgb_for_hue, get_gamut, is_earth_tone, is_excluded_palette_color, is_neutral, parse_rgb_values, preview_rgb, rgb_to_hue
 from rgbxy import GamutC
 
 
@@ -57,7 +57,7 @@ def test_rgb_to_hue_keeps_pink_chromaticity():
 
 
 def test_muted_warm_tone_excludes_beaver_not_red():
-    from hue_color import is_muted_warm_tone
+    from hue_sms.domain.hue_color import is_muted_warm_tone
     assert is_muted_warm_tone(146, 112, 93)
     assert not is_muted_warm_tone(255, 42, 69)
 

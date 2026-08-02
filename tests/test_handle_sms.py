@@ -1,7 +1,7 @@
 import pytest
 from phue import PhueException
 
-from color_resolver import (
+from hue_sms.services.color_resolver import (
     COMMAND_EMPTY,
     MATCH_EXACT,
     MATCH_HEX,
@@ -9,7 +9,7 @@ from color_resolver import (
     ResolvedColor,
     SpecialCommand,
 )
-from handle_sms import SmsRequestHandler, message_for_special_command
+from hue_sms.services.handle_sms import SmsRequestHandler, message_for_special_command
 
 
 class FakeController:
@@ -111,11 +111,11 @@ def test_successful_color_sets_bulb_and_returns_stats(
     events = FakeEvents()
     log_file = tmp_path / "data.csv"
 
-    monkeypatch.setattr("handle_sms.writeFile", lambda path, *args: None)
+    monkeypatch.setattr("hue_sms.services.handle_sms.writeFile", lambda path, *args: None)
     monkeypatch.setattr(
-        "handle_sms.publish_color_to_display", lambda *args, **kwargs: None
+        "hue_sms.services.handle_sms.publish_color_to_display", lambda *args, **kwargs: None
     )
-    monkeypatch.setattr("handle_sms.csv_event_export_enabled", lambda: False)
+    monkeypatch.setattr("hue_sms.services.handle_sms.csv_event_export_enabled", lambda: False)
 
     handler = SmsRequestHandler(
         controller=controller,
@@ -148,11 +148,11 @@ def test_hex_color_skips_stats_suffix(monkeypatch):
         increment_stats=False,
     )
 
-    monkeypatch.setattr("handle_sms.writeFile", lambda *args: None)
+    monkeypatch.setattr("hue_sms.services.handle_sms.writeFile", lambda *args: None)
     monkeypatch.setattr(
-        "handle_sms.publish_color_to_display", lambda *args, **kwargs: None
+        "hue_sms.services.handle_sms.publish_color_to_display", lambda *args, **kwargs: None
     )
-    monkeypatch.setattr("handle_sms.csv_event_export_enabled", lambda: False)
+    monkeypatch.setattr("hue_sms.services.handle_sms.csv_event_export_enabled", lambda: False)
 
     handler = SmsRequestHandler(
         controller=controller,
@@ -187,9 +187,9 @@ def test_hue_connect_failure(resolved_sky_blue):
 
 def test_hue_set_failure(resolved_sky_blue, monkeypatch):
     monkeypatch.setattr(
-        "handle_sms.publish_color_to_display", lambda *args, **kwargs: None
+        "hue_sms.services.handle_sms.publish_color_to_display", lambda *args, **kwargs: None
     )
-    monkeypatch.setattr("handle_sms.csv_event_export_enabled", lambda: False)
+    monkeypatch.setattr("hue_sms.services.handle_sms.csv_event_export_enabled", lambda: False)
 
     controller = FakeController(set_raises=True)
     stats = FakeStats()

@@ -1,22 +1,10 @@
-"""Import legacy data.csv rows into Redis when the event log is empty."""
+"""Legacy entry point — prefer: python -m hue_sms.cli.migrate_csv_events"""
 
-import argparse
-
-from config import data_file_path
-from event_repository import EventRepository
-
-
-def go(csv_path=None):
-    path = csv_path or data_file_path()
-    repo = EventRepository()
-    imported = repo.import_from_csv(path)
-    if imported:
-        print("Imported {} event(s) from {} into Redis.".format(imported, path))
-    else:
-        print("No events imported (missing file or Redis log already has entries).")
-
+from hue_sms.cli.migrate_csv_events import go
 
 if __name__ == "__main__":
+    import argparse
+
     parser = argparse.ArgumentParser(description="Migrate CSV event log into Redis.")
     parser.add_argument(
         "--csv",

@@ -1,6 +1,6 @@
-from palette_repository import PaletteRepository
-from stats_repository import StatsRepository
-from webhook_repository import WebhookRepository
+from hue_sms.infrastructure.palette_repository import PaletteRepository
+from hue_sms.infrastructure.stats_repository import StatsRepository
+from hue_sms.infrastructure.webhook_repository import WebhookRepository
 
 
 class FakeRedis:

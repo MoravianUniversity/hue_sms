@@ -1,6 +1,6 @@
 import pytest
 
-from color_resolver import (
+from hue_sms.services.color_resolver import (
     ColorResolver,
     COMMAND_BLACK,
     COMMAND_COLORS_LIST,

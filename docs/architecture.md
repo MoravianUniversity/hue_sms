@@ -368,7 +368,7 @@ Work in small PRs. Each step should leave the project runnable and tests passing
 | **3 — Service** | Extract `handle_color_request`; thin Flask route | Medium — **done** (`src/handle_sms.py`) |
 | **4 — Repositories** | Replace `getRedisColor`, inline Redis in fuzzy/stats | Medium — **done** (`*_repository.py`) |
 | **5 — History** | Unify event/recent data in Redis; deprecate CSV fallback | Medium — **done** (`event_repository.py`) |
-| **6 — Package move** | `src/hue_sms/` layout; update imports and docs | Medium |
+| **6 — Package move** | `src/hue_sms/` layout; update imports and docs | Medium — **done** |
 | **7 — Cleanup** | Remove dead code, rename scripts, delete duplicates | Low |
 
 **Out of scope for early phases:** changing Twilio/Hue behavior, palette contents, or kiosk UI.

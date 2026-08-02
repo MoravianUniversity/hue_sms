@@ -1,8 +1,8 @@
 import pytest
 from datetime import datetime
 
-from event_repository import EVENTS_KEY, FIRST_SEEN_KEY, EventRepository
-from palette_repository import PaletteRepository
+from hue_sms.infrastructure.event_repository import EVENTS_KEY, FIRST_SEEN_KEY, EventRepository
+from hue_sms.infrastructure.palette_repository import PaletteRepository
 
 
 class FakeRedis:
@@ -86,9 +86,9 @@ def test_first_event_date_falls_back_to_oldest_event():
 def test_invalid_color_names():
     redis = FakeRedis()
     repo = EventRepository(redis_client=redis, palette_repo=PaletteRepository(redis), max_events=100)
-    repo.append("", "foo", "unknown")
+    repo.append("", "bar", "unknown")
 
-    assert repo.invalid_color_names() == ["foo"]
+    assert repo.invalid_color_names() == ["bar"]
 
 
 def test_recent_color_names():
