@@ -2,7 +2,6 @@ import logging
 
 from phue import Bridge, PhueException
 
-import hue_sms.domain.name_converter as name_converter
 from hue_sms.config import configure_logging, settings
 from hue_sms.domain.hue_color import get_gamut, rgb_to_hue
 
@@ -18,7 +17,6 @@ class HueController:
     def __init__(self):
         self.bridge = None
         self.light = None
-        self.name_to_color = name_converter.NameConverter()
 
     def connect(self):
         if self.light is not None:

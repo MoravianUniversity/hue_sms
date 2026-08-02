@@ -1,3 +1,5 @@
+"""Merge palette CSV files into Redis without wiping usage stats."""
+
 import os
 
 from hue_sms.config import DATA_DIR, get_redis

@@ -20,7 +20,7 @@ from hue_sms.services.color_resolver import (
     SpecialCommand,
 )
 from hue_sms.config import csv_event_export_enabled, data_file_path
-from hue_sms.infrastructure.data_writer import writeFile
+from hue_sms.infrastructure.csv_export import writeFile
 from hue_sms.infrastructure.display_state import build_state, publish_state, publish_unsupported_color
 from hue_sms.infrastructure.event_repository import EventRepository
 from hue_sms.infrastructure.hue_controller import HueController
@@ -93,7 +93,7 @@ def message_for_special_command(command):
         )
     if command.command == COMMAND_CYCLE_UNAVAILABLE:
         logging.info("No colors available for next/cycle command")
-        return "Color list is unavailable. Run sync_colors.py first."
+        return "Color list is unavailable. Run: python -m hue_sms.cli.sync_palette"
     if command.command == COMMAND_RANDOM_EMPTY:
         return "No colors available for random."
     return "Something went wrong. Please try again."

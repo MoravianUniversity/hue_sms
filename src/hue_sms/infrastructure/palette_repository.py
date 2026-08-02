@@ -48,9 +48,10 @@ class PaletteRepository:
         names = self.list_names()
         if not names:
             return None
+        query = clean_name(color_name)
         try:
             match = process.extractOne(
-                color_name.title(), names, scorer=fuzz.token_sort_ratio
+                query, names, scorer=fuzz.partial_ratio
             )
         except redis.RedisError:
             return None

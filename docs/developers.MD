@@ -21,9 +21,10 @@ folder (`hue_sms` unless it was renamed after cloning).
 
 1. **Create a virtual environment in the folder `.env`**:  run `python3 -m venv .env`
 2. **Activate the virtual environment**: `source .env/bin/activiate`
-3. **Install dependencies**: `pip install -r requirements.txt`
+3. **Install dependencies** (includes the vendored `rgbxy` library): `pip install -r requirements.txt`
 4. **Make config file**: add a file to the root directory called settings.toml.  Add variables of light_ip= and light_number=
-4. **Install `hue_sms` source as an editable module**: `pip install -e .
+   Optional: `sms_phone_display = "484-895-1386"` for the kiosk window display.
+5. **Install `hue_sms` source as an editable module**: `pip install -e .`
 
 ## Workflow - IDE
 
@@ -39,7 +40,42 @@ use the default python installation instead of a virtual environment.  Developer
 Before beginning work, developers should verify that the virtual environment is being used by PyCharm.  In the Project 
 pane, open "External Libraries," and verify the entry for Python points to the correct virtual environment.
 
-## Workflow - Command Line
+## Adding or refreshing colors
+
+The color list comes from the Wikipedia Crayola page saved at
+`src/hue_sms/generate_colors/wikipedia_pages/colors.html`. The scraper reads **all specialty
+tables** (fluorescent, metallic, gem tones, glitter, twistables, etc.), not just the
+standard 164.
+
+```bash
+python -m hue_sms.generate_colors.scrape_colors   # writes hue_sms/data/colors.csv
+python -m hue_sms.cli.sync_palette                # merge into Redis without wiping stats
+```
+
+Common everyday aliases live in `extra_colors.csv` and are merged by `sync_palette`
+and `load_palette`.
+
+### Matching kiosk colors to the Hue bulb
+
+The kiosk shows sRGB values from `colors.csv`, but the bulb uses CIE xy
+chromaticity plus brightness. Many Crayola colors sit outside the bulb's LED
+gamut, and the old controller never set brightness — so dark or vivid colors
+often looked wrong on the light.
+
+After scraping or editing colors, run:
+
+```bash
+python -m hue_sms.cli.adjust_palette   # rewrites colors.csv for your bulb gamut
+python -m hue_sms.cli.sync_palette     # merge into Redis without wiping stats
+```
+
+Optional in `settings.toml`: `hue_gamut = "C"` (A/B/C — use C for newer Hue
+bulbs, B for older A19). Defaults to C.
+
+Black, white, gray, and muted brown/tan palette entries are excluded
+automatically — except white, which works on a Hue bulb at full brightness with
+no saturation. Browns often look pink or salmon and stay excluded. `sync_palette.py`
+removes any excluded colors already in Redis.
 
 A virtual environment is active until the `deactivate` script is executed or the terminal window is closed.  To
 activate the virtual environment in a new terminal window, run the command `source .env/bin/activate` from the 

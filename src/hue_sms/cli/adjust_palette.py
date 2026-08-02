@@ -91,7 +91,7 @@ def main():
         total_changed, "would change" if args.dry_run else "changed"
     ))
     if not args.dry_run and total_changed:
-        print("Run createRedis.py or sync_colors.py to push updates into Redis.")
+        print("Run: python -m hue_sms.cli.load_palette (or sync_palette) to push updates into Redis.")
 
 
 if __name__ == "__main__":

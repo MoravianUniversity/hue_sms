@@ -56,14 +56,14 @@ def test_palette_fuzzy_match():
 
 def test_stats_increment_and_percent():
     redis = FakeRedis()
-    redis.hashes["color_totals"] = {"sky blue": "2"}
+    redis.hashes["color_totals"] = {"sky blue": "2", "magenta": "0"}
     redis.values["total"] = "4"
     repo = StatsRepository(redis)
 
     repo.increment("magenta")
     assert redis.hashes["color_totals"]["magenta"] == "1"
     assert redis.values["total"] == "5"
-    assert repo.percent("sky blue") == 50.0
+    assert repo.percent("sky blue") == 40.0
 
 
 def test_webhook_record_and_get_last():

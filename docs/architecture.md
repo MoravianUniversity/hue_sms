@@ -349,7 +349,7 @@ flowchart LR
 | **Domain** | Unit tests with fixed RGB inputs (existing `test_hue_color.py` pattern) |
 | **ColorResolver** | Fake palette repo returning a small dict; no Redis |
 | **handle_sms** | Mock `HueController`, repos, and event log; assert messages and side effects |
-| **Infrastructure** | Integration tests with `fakeredis` (see `mocks/mockRedis.py`) |
+| **Infrastructure** | Integration tests with inline `FakeRedis` fakes or `fakeredis` in unit tests |
 | **Web** | Flask test client for routes; delegate logic to tested services |
 
 Goal: **business logic tests run without Redis, Hue, or Twilio.**
@@ -369,7 +369,7 @@ Work in small PRs. Each step should leave the project runnable and tests passing
 | **4 — Repositories** | Replace `getRedisColor`, inline Redis in fuzzy/stats | Medium — **done** (`*_repository.py`) |
 | **5 — History** | Unify event/recent data in Redis; deprecate CSV fallback | Medium — **done** (`event_repository.py`) |
 | **6 — Package move** | `src/hue_sms/` layout; update imports and docs | Medium — **done** |
-| **7 — Cleanup** | Remove dead code, rename scripts, delete duplicates | Low |
+| **7 — Cleanup** | Remove dead code, rename scripts, delete duplicates | Low — **done** |
 
 **Out of scope for early phases:** changing Twilio/Hue behavior, palette contents, or kiosk UI.
 
@@ -385,7 +385,7 @@ Record choices here as the team reviews the design:
 | Package rename timing | Before or after service extraction | **After** — extract logic first (Phases 2–4), move folders in Phase 6 |
 | `Rgb` value type | Keep `"r,g,b"` strings vs small dataclass | **Keep strings for now** — less churn while refactoring |
 | Single Flask app vs two | Keep SMS (:5000) and kiosk (:8000) separate | **Keep separate** — different deploy/scaling |
-| `NameConverter` CSV class | Delete vs keep for offline tools only | **Delete from controller** in Phase 7 — unused on live path |
+| `NameConverter` CSV class | Delete vs keep for offline tools only | **Keep in domain** for offline/tests; removed from `HueController` |
 
 ---
 

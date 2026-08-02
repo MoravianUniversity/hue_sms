@@ -1,7 +1,8 @@
+"""Load the full palette from CSV into Redis (wipes existing Redis data)."""
+
 import os
 
 from hue_sms.config import DATA_DIR, get_redis
-
 from hue_sms.domain.hue_color import is_excluded_palette_color
 from hue_sms.domain.name_converter import clean_name
 

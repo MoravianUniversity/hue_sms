@@ -23,5 +23,5 @@ def test_color_load():
 def test_extracts_specialty_colors():
     colors = make_map("src/hue_sms/generate_colors/wikipedia_pages/colors.html")
     assert "Absolute Zero" in colors
-    assert "Aztec Gold" in colors
+    assert "Amazon Forest" in colors
     assert len(colors) > 300

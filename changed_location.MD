@@ -14,8 +14,8 @@ These steps must be followed both after the Hue bridge has been plugged in, and 
 
 1. **If you do not currently have the Philips HUE app installed on a device, do so now.**
 2. **Use the app to search for the bridge's IP address (Note that both the device and bridge must be on the same network).**
-3. **Once the IP address is determined, go into the `hue_controller.py` file, and change the value of the variable `IP_address` to match.**
-4. **Run the `hue_flask.py` file, while pressing and releasing the sync button on the Hue Bridge.**
+3. **Once the IP address is determined, add it to `settings.toml` in the project root as `light_ip`.**
+4. **Run the SMS server (`python -m hue_sms.web.hue_flask`), while pressing and releasing the sync button on the Hue Bridge.**
 
 Following Step 4, your device should be able to run the program.  If it does not initially work, repeat Step 4 before 
 attempting an alternate solution.
